@@ -1,8 +1,9 @@
 
+
 package main
 
 import "fmt"
 
 func main() {
-	fmt.Println("Hello, yandex lyceum!")
+	fmt.Println("Hello, world!")
 }
