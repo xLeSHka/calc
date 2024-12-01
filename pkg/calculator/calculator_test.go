@@ -1,9 +1,8 @@
-package calculator_test
+package calculator
 
 import (
+	"errors"
 	"testing"
-
-	"github.com/xLeSHka/calculator/pkg/calculator"
 )
 
 func TestCalc(t *testing.T) {
@@ -35,12 +34,12 @@ func TestCalc(t *testing.T) {
 	}
 	for _, testCase := range testCasesSuccess {
 		t.Run(testCase.name, func(t *testing.T) {
-			val, err := calculator.Calc(testCase.expression)
+			val, err := Calc(testCase.expression)
 			if err != nil {
-				t.Fatalf("successful case %s returns error", testCase.expression)
+				t.Errorf("successful case %s returns error", testCase.expression)
 			}
 			if val != testCase.expectedResult {
-				t.Fatalf("%f should be equal %f", val, testCase.expectedResult)
+				t.Errorf("%f should be equal %f", val, testCase.expectedResult)
 			}
 		})
 	}
@@ -50,28 +49,52 @@ func TestCalc(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			name:       "simple",
-			expression: "1+1*",
+			name:        "simple",
+			expression:  "1+1*",
+			expectedErr: ErrInvalidExpression,
 		},
 		{
-			name:       "priority",
-			expression: "2+2**2",
+			name:        "priority",
+			expression:  "2+2**2",
+			expectedErr: ErrInvalidExpression,
 		},
 		{
-			name:       "priority",
-			expression: "((2+2-*(2",
+			name:        "right paranthes",
+			expression:  "((2+2-*(2",
+			expectedErr: ErrMissRightParanthesis,
 		},
 		{
-			name:       "empty",
-			expression: "",
+			name:        "left paranthes",
+			expression:  "2+2)-2",
+			expectedErr: ErrMissLeftParanthesis,
+		},
+		{
+			name:        "empty",
+			expression:  "",
+			expectedErr: ErrInvalidExpression,
+		},
+		{
+			name:        "division by zero",
+			expression:  "10/0",
+			expectedErr: ErrDivisionByZero,
+		},
+		{
+			name:        "invaid operator",
+			expression:  "10&0",
+			expectedErr: ErrInvalidExpression,
 		},
 	}
 
 	for _, testCase := range testCasesFail {
 		t.Run(testCase.name, func(t *testing.T) {
-			val, err := calculator.Calc(testCase.expression)
+			val, err := Calc(testCase.expression)
 			if err == nil {
-				t.Fatalf("expression %s is invalid but result  %f was obtained", testCase.expression, val)
+				t.Errorf("expression %s is invalid but result  %f was obtained", testCase.expression, val)
+			}
+			if err != nil {
+				if !errors.Is(err, testCase.expectedErr) {
+					t.Errorf("expected err: %v, recieved %v", testCase.expectedErr, err)
+				}
 			}
 		})
 	}
