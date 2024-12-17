@@ -20,7 +20,7 @@
 	 //
 	 //    sw "github.com/myname/myrepo/go"
 	 //
-	 sw "github.com/xLeSHka/calculator/go-server-server"
+	 sw "github.com/xLeSHka/calc/go-server-server"
  )
  
  func main() {

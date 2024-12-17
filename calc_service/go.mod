@@ -1,4 +1,4 @@
-module github.com/xLeSHka/calculator
+module github.com/xLeSHka/calc
 
 go 1.23.1
 

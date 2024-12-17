@@ -1,4 +1,4 @@
-module github.com/xLeSHka/calculator/swagger
+module github.com/xLeSHka/calc/swagger
 
 go 1.23.4
 
