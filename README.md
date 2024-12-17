@@ -12,11 +12,26 @@
 - go build -o calc_service ./cmd/main/main.go
 - ./calc_service
 
+Вот несколько запросов, которые нужно ввести в консоль чтобы получить все варианты ответов на запросы
+curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
+  "expression": "2+2*2"
+}'
+curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' --header 'Content-Type: application/json' --data '{
+  "expression": ""
+}'
+curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
+  "expression": "internal"
+}'
+
 Для запуска автоматических тестов нужно ввести 
 - go test ./internal/server/ -v -cover
 - go test ./pkg/calculator/ -v -cover
 
-Чтобы удобно тестировать сервер своими запросами, если вы подняли его с докером, можно использовать swagger-ui, который поднялся на адресе http:localhost:8085 , там будет удобный интерфейс для создания своих запросов. 
+На самом деле есть более удобные инструменты для самостоятельного тестирования серверов. Например если вы подняли этот сервер с докером, можно использовать swagger-ui, который поднялся на адресе http:localhost:8085 , там будет удобный интерфейс для создания своих запросов. 
 Так же можно использовать Postman. Если вы пользуетесь VS Code, то нужно просто зайти в extention, ввести postman и установить первое расширение из списка. Чтобы пользоваться Postman`ом нужно в нем зарегистрироваться. После регистрации нужно зайти в свой аккаунт в расширении для VS Code. И все, можно создавать запросы нажатием на New HTTP Request. Потом выбрать метод, ввести localhost:9090/api/v1/calculate в поле URL и обязательно во вкладке body выбрать raw, а потом справа нажав на синюю стрелочку выбрать json. Туда нужно вставить такую структуру, если вы конечно хотите проверить правильность вычислений
 
 {
