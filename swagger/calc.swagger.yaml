@@ -1,0 +1,71 @@
+openapi: 3.0.1
+info:
+  title: calc/calc.proto
+  version: version not set
+servers:
+- url: http://localhost:9090
+paths:
+  /api/v1/calculate:
+    post:
+      tags:
+      - CalcService
+      operationId: CalcService_Calculate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/calcCalculateRequest'
+            example:
+                expression: "2*2-(4/5*(54*2))"
+        required: true
+      responses:
+        "200":
+          description: A successful response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/calcCalculateResponse'
+              example:
+                result: −82.4
+          required: true
+        "422":
+          description: Unprocessable Entity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/invalidError'
+              example:
+                error: "Expression is not valid"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/internalError'
+              example:
+                error: "Internal server error"
+      x-codegen-request-body-name: body
+components:
+  schemas:
+    calcCalculateRequest:
+      type: object
+      properties:
+        expression:
+          type: string
+    calcCalculateResponse:
+      type: object
+      properties:
+        result:
+          type: number
+          format: float
+    invalidError:
+      type: object
+      properties:
+        error:
+          type: string
+    internalError:
+      type: object
+      properties:
+        error:
+          type: string
+x-original-swagger-version: "2.0"
