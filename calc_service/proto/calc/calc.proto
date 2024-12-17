@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package calc;
+
+option go_package = "pkg/api/calc";
+
+import "google/api/annotations.proto";
+
+service CalcService {
+    rpc Calculate(CalculateRequest) returns (CalculateResponse) {
+        option (google.api.http) = {
+            post: "/api/v1/calculate"
+            body: "*"
+        };
+    }
+}
+message CalculateRequest {
+    string expression = 1;
+}
+message CalculateResponse {
+    float result = 1;
+}
