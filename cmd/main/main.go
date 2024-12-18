@@ -8,8 +8,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/xLeSHka/calc/interenal/config"
-	"github.com/xLeSHka/calc/interenal/server"
+	"github.com/xLeSHka/calc/internal/config"
+	"github.com/xLeSHka/calc/internal/server"
 	"github.com/xLeSHka/calc/pkg/logger"
 	"go.uber.org/zap"
 )
