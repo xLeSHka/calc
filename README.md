@@ -1,48 +1,67 @@
 # calc
-Это сервер-калькулятор. 
+Это сервер-калькулятор. Он исползует урезанный [Shunting yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm). В моей реализации он не поддерживает возведение в степень и функции
+Валидные операторы 
+| Operator | Precedence |
+|:--------:|:----------:|
+| *        |2           |
+|/         |2           |
+|+         |1           |
+|-         |1           |
 ## Запуск сервера
 Запустить его можно через докер, make или сбилдить самому
 ### Docker
-Чтобы запустить через докер необходим линукс, на виндовс можно просто скачать Docker desktop https://www.docker.com/get-started/ , и держать его запущенным, когда работаешь с докером. После установки Docker desktop просто введите в терминал 
-- docker-compose up --build
+Чтобы запустить через докер необходим линукс, на виндовс можно просто скачать [Docker Desktop](https://www.docker.com/get-started/) , и держать его запущенным, когда работаешь с докером. После установки Docker desktop просто введите в терминал  
+```cmd
+ docker-compose up --build
+```
 ### Makefile
 Если же вы не хотите или не можете запустить сервер через докер, хотя я настоятельно рекомендую именно этот способ, докер очень удобен и скорее всего пригодится вам ее много раз, то можно сделать это командой make или просто сборкой бинарника и его запуском, но для этого нужно в main.go, там где мы задаем порт для сервера изменить ":%d" на "localhost:%d"
 Тогда можно ввести команду make для сборки бинарника и его запуска
 - make 
 ### Самостоятельная сборка
 Или ввести команды самому 
-- go build -o calc_service ./cmd/main/main.go
-- ./calc_service
+```cmd
+go build -o calc_service ./cmd/main/main.go
+./calc_service
+```
 ## Тестирование сервера
 Протестирвоать сервер можно с помощью заготовленных curl запросов, автотестов, через postman или через swagger-ui, если вы запускали сервер через докер
 ### Автотесты 
 Для запуска тестов нужно ввестив в терминал
-- go test ./internal/server/ -v -cover
-- go test ./pkg/calculator/ -v -cover
+```cmd
+go test ./internal/server/ -v -cover
+go test ./pkg/calculator/ -v -cover
+```
 ### Curl запросы
 Вот несколько запросов, которые нужно ввести в консоль чтобы получить все варианты ответов на запросы
+```cmd
 curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{
   "expression": "2+2*2"
 }'
-curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' --header 'Content-Type: application/json' --data '{
+
+curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
   "expression": ""
 }'
+
 curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{
   "expression": "internal"
 }'
+```
 ### Swagger-UI
-Если вы подняли этот сервер с докером, можно использовать swagger-ui, который поднялся на адресе http:localhost:8085, там будет удобный интерфейс для создания своих запросов. 
+Если вы подняли этот сервер с докером, можно использовать [swagger-ui](http://localhost:8085/), который поднялся на адресе http:localhost:8085, там будет удобный интерфейс для создания своих запросов. 
 ## Postman
 Так же можно использовать Postman. Если вы пользуетесь VS Code, то нужно просто зайти в extention, ввести postman и установить первое расширение из списка. Чтобы пользоваться Postman`ом нужно в нем зарегистрироваться. После регистрации нужно зайти в свой аккаунт в расширении для VS Code. И все, можно создавать запросы нажатием на New HTTP Request. Потом выбрать метод, ввести localhost:9090/api/v1/calculate в поле URL и обязательно во вкладке body выбрать raw, а потом справа нажав на синюю стрелочку выбрать json. Туда нужно вставить такую структуру, если вы конечно хотите проверить правильность вычислений
-
-{
-    "expression":"ваше выражение"
-}
-
+```json
+{  
+    "expression":"ваше выражение"  
+}  
+```
 В постмане можно выбрать различные методы, попробовать передать данные не application/json типа и так далее.
 
 
