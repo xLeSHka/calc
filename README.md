@@ -6,7 +6,7 @@
 Чтобы запустить через докер необходим линукс, на виндовс можно просто скачать Docker desktop https://www.docker.com/get-started/ , и держать его запущенным, когда работаешь с докером. После установки Docker desktop просто введите в терминал 
 - docker-compose up --build
 ### Makefile
-Если же вы не хотите или не можете запустить сервер через докер, хотя я настоятельно рекомендую именно этот способ, докер очень удобен и скорее всего пригодится вам ее много раз, то можно сделать это командой make или просто сборкой бинарника и его запуском, но для этого нужно в main.go, там где мы задаем порт для сервера изменить ":%d" на "localhost:%d"
+Если же вы не хотите или не можете запустить сервер через докер, хотя я настоятельно рекомендую именно этот способ, докер очень удобен и скорее всего пригодится вам еще много раз, то можно сделать это командой make или просто сборкой бинарника и его запуском, но для этого нужно в main.go, там где мы задаем порт для сервера изменить ":%d" на "localhost:%d"
 Тогда можно ввести команду make для сборки бинарника и его запуска
 - make 
 ### Самостоятельная сборка
@@ -21,19 +21,25 @@
 - go test ./pkg/calculator/ -v -cover
 ### Curl запросы
 Вот несколько запросов, которые нужно ввести в консоль чтобы получить все варианты ответов на запросы
+
 curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{
   "expression": "2+2*2"
 }'
-curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' --header 'Content-Type: application/json' --data '{
+
+curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
   "expression": ""
 }'
+
 curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
 --header 'Content-Type: application/json' \
 --data '{
   "expression": "internal"
 }'
+
 ### Swagger-UI
 Если вы подняли этот сервер с докером, можно использовать swagger-ui, который поднялся на адресе http:localhost:8085, там будет удобный интерфейс для создания своих запросов. 
 ## Postman
