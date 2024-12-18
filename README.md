@@ -62,6 +62,7 @@ curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
    "result":"6"
 }
 ```
+```cmd 200```
 Введите команду:
 ```
 curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
@@ -76,6 +77,7 @@ curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
    "error":"Expression is not valid"
 }
 ```
+```cmd 422```
 Введите команду:
 ```
 curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
@@ -90,6 +92,7 @@ curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
    "error":"Internal server error"
 }
 ```
+```cmd 500```
 ### Swagger-UI
 Если вы подняли этот сервер с `docker`, можно использовать [swagger-ui](http://localhost:8085/), там будет удобный интерфейс для создания своих запросов. 
 ### Postman
