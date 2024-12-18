@@ -18,8 +18,9 @@ punctuation = "." | "(" | ")"
 ### Docker
 Чтобы запустить через `docker` необходим собственно [docker](https://docs.docker.com/compose/install/). После установки просто введите в терминал `VS Code`
 ```cmd
-docker-compose up 
+docker-compose up -d
 ```
+Тогда логи сервера можно посмотреть в `Docker Desktop` нажав на `calc_service`
 Чтобы остановить сервер нужно ввести в терминал `VS Code`
 ```cmd
 docker-compose down
