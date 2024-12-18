@@ -36,7 +36,9 @@ curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
   "expression": "2+2*2"
 }'
 
-curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' --header 'Content-Type: application/json' --data '{
+curl -w "%{http_code}" --location 'localhost:9090/api/v1/calculate' \
+--header 'Content-Type: application/json' \
+--data '{
   "expression": ""
 }'
 
