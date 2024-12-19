@@ -33,7 +33,7 @@ func main() {
 		mainLogger.Error(ctx, "failed create new grpc server", zap.String("error message", err.Error()))
 		return
 	}
-	//
+	//создаем контект для плавного завершения работы сервера
 	ctx, stop := signal.NotifyContext(ctx, syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
