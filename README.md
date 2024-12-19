@@ -16,7 +16,7 @@ punctuation = "." | "(" | ")"
 ## Запуск сервера через docker
 Запустить его можно через `docker`, `make` или сбилдить самому
 ### Docker
-Чтобы запустить через `docker` необходим собственно [docker](https://docs.docker.com/compose/install/). После установки просто введите в терминал `VS Code`
+Чтобы запустить через `docker` необходим собственно [docker](https://docs.docker.com/compose/install/). После установки просто введите в терминал `VS Code`, при этом `Docker Desktop` обязательно должен быть запущен
 ```cmd
 docker-compose up -d
 ```

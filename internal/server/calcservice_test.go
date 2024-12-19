@@ -100,24 +100,28 @@ func TestCalcHandlerSuccessCase(t *testing.T) {
 
 	for _, testCase := range testCasesSucces {
 		t.Run(testCase.name, func(t *testing.T) {
+			//создание body запроса 
 			var b bytes.Buffer
 			err := json.NewEncoder(&b).Encode(testCase)
 			if err != nil {
 				t.Error("failed encode test cases", err)
 				return
 			}
+			//настраиваем запрос
 			e := echo.New()
 			rec := httptest.NewRecorder()
 			req := httptest.NewRequest(http.MethodPost, "/api/v1/calculate", &b)
 			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			c := echo.New().NewContext(req, rec)
 
+			//создаем сервер для отправки запросов
 			server := Server{
 				server: e,
 			}
-
-			c := echo.New().NewContext(req, rec)
+			//делаем запрос на сервер
 			err = server.calculate(c)
 			resp := Response{}
+			//проверяем если вернулась ошибка, ожидаемая ли она или нет
 			if testCase.expectedStatus != 200 {
 				recCode := strings.Split(err.Error(), "=")
 				recCode = strings.Split(recCode[1], ",")
@@ -125,14 +129,17 @@ func TestCalcHandlerSuccessCase(t *testing.T) {
 				if err2 != nil {
 					t.Errorf("unexpected error: %v", err)
 				}
+				//сравниваем полученную ошибку и ожидаемую
 				assert.Equal(t, testCase.expectedErrMsg, err.Error())
 				assert.Equal(t, testCase.expectedStatus, recievedCode)
 			}
+			//десериализируем тело ответа
 			err = json.NewDecoder(rec.Body).Decode(&resp)
 			if err != nil && err != io.EOF {
 				t.Errorf("unexpected error: %v", err)
 				return
 			}
+			//проверяем значение с ожидаемым
 			assert.Equal(t, testCase.expectedResult, resp.Result)
 
 		})

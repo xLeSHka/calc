@@ -15,7 +15,7 @@ PROTO_FILES := ${PROTO_DIR}/calc/calc.proto
 start: build run 
 build: 
 	@echo "Building the binary..."
-	${GO} build -o${BINARY_NAME} ${MAIN_DIR}
+	${GO} build -o ${BINARY_NAME} ${MAIN_DIR}
 run:	 build
 	@echo "Running the server..."
 	./${BINARY_NAME}

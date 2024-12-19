@@ -13,6 +13,6 @@ services:
     ports:
       - "8085:8080"
     volumes:
-      - ./swagger/calc.swagger.yaml:/usr/share/nginx/html/swagger/calc.swagger.yaml
+      - ./api/calc.swagger.yaml:/usr/share/nginx/html/swagger/calc.swagger.yaml
     environment:
       API_URL: swagger/calc.swagger.yaml

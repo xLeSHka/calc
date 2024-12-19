@@ -46,8 +46,8 @@ func main() {
 			mainLogger.Error(ctx, "shutting down the server", zap.String("Error:", err.Error()))
 			return
 		}
-		mainLogger.Info(ctx, "Server started on port", zap.Int("port", cfg.RestServerPort))
 	}()
+	mainLogger.Info(ctx, "Server started on port", zap.Int("port", cfg.RestServerPort))
 
 	<-ctx.Done()
 
