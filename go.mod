@@ -4,7 +4,6 @@ go 1.23.4
 
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
-	github.com/magiconair/properties v1.8.9
 	github.com/stretchr/testify v1.8.4
 )
 
