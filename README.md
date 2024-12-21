@@ -216,6 +216,26 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 422
 ```
+Запрос с неправильным Content-Type`ом  
+Введите команду:
+```
+curl -X 'POST' -w "%{http_code}"\
+  'http://localhost:9090/api/v1/calculate' \
+ -H 'accept: text/plain' \
+  -H 'Content-Type: text/plain' \
+  -d '{
+  "expression": "2+2+2"
+}'
+```
+**Ожидаемый ответ:**
+```json
+{
+   "message":"Expression is not valid"
+}
+```
+```cmd 
+422
+```
 Запрос с недопустимым методом  
 Введите команду:
 ```cmd
@@ -255,26 +275,6 @@ curl -X 'POST' -w "%{http_code}"\
 ```
 ```cmd 
 500
-```
-Запрос с неправильным Content-Type`ом  
-Введите команду:
-```
-curl -X 'POST' -w "%{http_code}"\
-  'http://localhost:9090/api/v1/calculate' \
- -H 'accept: text/plain' \
-  -H 'Content-Type: text/plain' \
-  -d '{
-  "expression": "2+2+2"
-}'
-```
-**Ожидаемый ответ:**
-```json
-{
-   "message":"Expression is not valid"
-}
-```
-```cmd 
-422
 ```
 ### Swagger-UI
 Если вы подняли этот сервер с `docker`, можно использовать [swagger-ui](http://localhost:8085/), там будет удобный интерфейс для создания своих запросов. 
