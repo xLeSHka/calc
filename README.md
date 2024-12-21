@@ -11,7 +11,7 @@ function = log(a,x) | sqrt(a)
 | Operator | Precedence |
 |:--------:|:----------:|
 | ^        |5           |
-| -        |4           |
+|-(unary)  |4           |
 | *        |3           |
 |/         |3           |
 |+         |2           |
