@@ -119,10 +119,7 @@ func Calc(expression string) (float64, error) {
 	// 	fmt.Println("error 1")
 	// 	return 0, err
 	// }
-	err = calculate(expressionBT, wg, cancelCtx)
-	if err != nil {
-		return 0, err
-	}
+	go  calculate(expressionBT, wg, cancelCtx)
 	select {
 	case <-ctx.Done():
 		return 0, fmt.Errorf("context done")

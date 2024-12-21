@@ -52,6 +52,7 @@ go test ./internal/server/ -v -cover
 go test ./pkg/calculator/ -v -cover
 ```
 ### Curl запросы
+**Запросы вводить нужно не в `cmd` или `power shell`, а в `Git Bash`, если вы скачивали `Git` себе на компьютер, но он у вас должен быть**  
 Правильный запрос  
 Введите команду:
 ```cmd
