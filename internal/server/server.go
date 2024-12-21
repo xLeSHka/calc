@@ -44,17 +44,19 @@ func (s *Server) calculate(c echo.Context) error {
 
 	err := c.Bind(&req)
 	if err != nil {
-		logger.New().Info(context.Background(), "req", zap.String("expression", err.Error()))
+		logger.New().Error(context.Background(), "req", zap.String("error", err.Error()))
 
 		return echo.NewHTTPError(422, "Expression is not valid")
 	}
 	//заглушка для 500 ответа
 	if req.Expression == "internal" {
+		logger.New().Error(context.Background(), "req", zap.String("expression", "internal"))
 		return echo.NewHTTPError(500, "Internal server error")
 	}
 	//отправляем выражение на вычисление
 	res, err := calculator.Calc(req.Expression)
 	if err != nil {
+		logger.New().Error(context.Background(), "req", zap.String("error", err.Error()))
 		return echo.NewHTTPError(422, "Expression is not valid")
 	}
 	return c.JSON(http.StatusOK, Response{Result: res, Expression: req.Expression})
