@@ -216,10 +216,9 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 422
 ```
-```
 Запрос с недопустимым методом  
 Введите команду:
-```
+```cmd
 curl -X 'GET' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
  -H 'accept: application/json' \
