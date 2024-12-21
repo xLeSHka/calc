@@ -16,7 +16,7 @@ paths:
             schema:
               $ref: '#/components/schemas/calcCalculateRequest'
             example:
-                expression: "2*2-(4/5*(54*2))"
+                expression: "log(18,18)^(-9)/3.14*(-12-3)*3/(-10)+2*sqrt(4)"
         required: true
       responses:
         "200":

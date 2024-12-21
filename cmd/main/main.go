@@ -10,12 +10,16 @@ import (
 
 	"github.com/xLeSHka/calc/internal/config"
 	"github.com/xLeSHka/calc/internal/server"
+	"github.com/xLeSHka/calc/pkg/app/calculator"
 	"github.com/xLeSHka/calc/pkg/logger"
 	"go.uber.org/zap"
 )
 
 func main() {
-	//инициализируем логер и пихаем его в контекст
+	// fmt.Println(bt.Left.Token, bt.Token.Token, bt.Right.Token)
+	// fmt.Println(calculator.Calc("log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)"))
+	fmt.Println(calculator.Calc("log(sqrt(4),sqrt(64))"))
+	// инициализируем логер и пихаем его в контекст
 	ctx := context.Background()
 	mainLogger := logger.New()
 	ctx = context.WithValue(ctx, logger.LoggerKey, mainLogger)

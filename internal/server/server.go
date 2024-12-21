@@ -2,13 +2,11 @@ package server
 
 import (
 	"context"
-	"encoding/json"
-	"io"
 	"net/http"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/xLeSHka/calc/pkg/calculator"
+	"github.com/xLeSHka/calc/pkg/app/calculator"
 	"github.com/xLeSHka/calc/pkg/logger"
 	"go.uber.org/zap"
 )
@@ -42,13 +40,9 @@ func (s *Server) calculate(c echo.Context) error {
 		logger.New().Info(context.Background(), "content type not allowed", zap.String("Content-Type", c.Request().Header.Get("Content-Type")), zap.String("required Content-Type", "application/json"))
 		return echo.NewHTTPError(422, "Expression is not valid")
 	}
-	//читаем тело запроса и пытаемся его десериализировать
-	data, err := io.ReadAll(c.Request().Body)
-	if err != nil {
-		return echo.NewHTTPError(422, "Expression is not valid")
-	}
 	req := Request{}
-	err = json.Unmarshal(data, &req)
+
+	err := c.Bind(&req)
 	if err != nil {
 		logger.New().Info(context.Background(), "req", zap.String("expression", err.Error()))
 

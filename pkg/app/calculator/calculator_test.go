@@ -3,6 +3,8 @@ package calculator
 import (
 	"errors"
 	"testing"
+
+	"github.com/xLeSHka/calc/pkg/app/token"
 )
 
 func TestCalc(t *testing.T) {
@@ -31,6 +33,36 @@ func TestCalc(t *testing.T) {
 			expression:     "1/2",
 			expectedResult: 0.5,
 		},
+		{
+			name:           "sqrt",
+			expression:     "sqrt(64)",
+			expectedResult: 8,
+		},
+		{
+			name:           "log",
+			expression:     "log(2,8)",
+			expectedResult: 3,
+		},
+		{
+			name:           "log(sqrt(),sqrt())",
+			expression:     "log(sqrt(4),sqrt(64))",
+			expectedResult: 3,
+		},
+		{
+			name:           "big_expression",
+			expression:     "log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)",
+			expectedResult: 2.56689,
+		},
+		{
+			name:           "verybig",
+			expression:     "log(18,18)^(-9)/3.14*(-12-3)*3/(-10)+2*sqrt(4)",
+			expectedResult: 5.43311,
+		},
+		{
+			name:           "omg",
+			expression:     "log(sqrt(4),sqrt(64))^sqrt(81)*(-1)",
+			expectedResult: -19683,
+		},
 	}
 	for _, testCase := range testCasesSuccess {
 		t.Run(testCase.name, func(t *testing.T) {
@@ -49,39 +81,59 @@ func TestCalc(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			name:        "simple",
+			name:        "simple1",
 			expression:  "1+1*",
-			expectedErr: ErrInvalidExpression,
+			expectedErr: token.ErrConvertRPNToNT,
 		},
 		{
 			name:        "priority",
 			expression:  "2+2**2",
-			expectedErr: ErrInvalidExpression,
+			expectedErr: token.ErrConvertRPNToNT,
 		},
 		{
 			name:        "right paranthes",
 			expression:  "((2+2-*(2",
-			expectedErr: ErrMissRightParanthesis,
+			expectedErr: token.ErrMisedSepOrParanth,
 		},
 		{
 			name:        "left paranthes",
 			expression:  "2+2)-2",
-			expectedErr: ErrMissLeftParanthesis,
+			expectedErr: token.ErrNonBalancedParanthesis,
 		},
 		{
 			name:        "empty",
 			expression:  "",
-			expectedErr: ErrInvalidExpression,
+			expectedErr: token.ErrConvertRPNToNT,
 		},
 		{
 			name:        "division by zero",
 			expression:  "10*10/0",
-			expectedErr: ErrDivisionByZero,
+			expectedErr: token.ErrDivisionByZero,
 		},
 		{
 			name:        "invaid operator",
 			expression:  "10&0",
-			expectedErr: ErrInvalidExpression,
+			expectedErr: token.ErrUnknownSymbol,
+		},
+		{
+			name:        "log bad req",
+			expression:  "log(-2,8)",
+			expectedErr: token.ErrLogNotDefinedFor,
+		},
+		{
+			name:        "log another bad req",
+			expression:  "log(1,8)",
+			expectedErr: token.ErrLogNotDefinedFor,
+		},
+		{
+			name:        "log another bad req",
+			expression:  "log(16,(-1))",
+			expectedErr: token.ErrLogOutOfFuncDomain,
+		},
+		{
+			name:        "sqrt bad req",
+			expression:  "sqrt(-64)",
+			expectedErr: token.ErrSqrtOutOfDomain,
 		},
 	}
 
