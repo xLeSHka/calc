@@ -2,6 +2,7 @@ package logger
 
 import (
 	"context"
+	"encoding/json"
 
 	"go.uber.org/zap"
 )
@@ -39,7 +40,22 @@ func (l logger) Error(ctx context.Context, msg string, fields ...zap.Field) {
 
 // Функция конструктор для логгера
 func New() Logger {
-	zapLogger, _ := zap.NewProduction()
+	rawJSON := []byte(`{
+		"level": "debug",
+		"encoding": "json",
+		"outputPaths": ["stdout"],
+		"errorOutputPaths": ["stderr"],
+		"encoderConfig": {
+		  "messageKey": "message",
+		  "levelKey": "level",
+		  "levelEncoder": "lowercase"
+		}
+	  }`)
+	var cfg zap.Config
+	if err := json.Unmarshal(rawJSON, &cfg); err != nil {
+		panic(err)
+	}
+	zapLogger := zap.Must(cfg.Build())
 	defer zapLogger.Sync()
 	return &logger{
 		logger: zapLogger,
