@@ -1,5 +1,5 @@
 # calc
-Это сервер-калькулятор. Он использует урезанный [Shunting yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm) для вычисления значений выражений. 
+Это сервер-калькулятор. Он использует [Shunting yard algorithm](https://en.wikipedia.org/wiki/Shunting_yard_algorithm) для вычисления значений выражений. 
 Выражение должно состоять из
 ```
 digit = "0" ... "9" 
@@ -16,6 +16,7 @@ function log(a,x) | sqrt(a)
 |/         |3           |
 |+         |2           |
 |-         |2           |
+  
 **Unary минус ** нужно выделять в скобки, если он не стоит после скобки
 log(a,x) представляет из себя log10(a)/log10(x) то есть loga(x). На этом все, мне было лень добавлять больше функций :0
 ## Запуск сервера через docker
