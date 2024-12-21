@@ -52,7 +52,7 @@ go test ./internal/server/ -v -cover
 go test ./pkg/calculator/ -v -cover
 ```
 ### Curl запросы
-Правильный запрос
+Правильный запрос  
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -73,7 +73,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 200
 ```
-Правильный запрос
+Правильный запрос  
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -94,7 +94,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 200
 ```
-Правильный запрос
+Правильный запрос  
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -115,7 +115,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 200
 ```
-Правильный запрос
+Правильный запрос  
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -136,7 +136,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 200
 ```
-Унарный минус не выделен скобками
+Унарный минус не выделен скобками  
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -149,7 +149,6 @@ curl -X 'POST' -w "%{http_code}"\
 ```
 **Ожидаемый ответ:**
 ```json
-```json
 {
    "messsage":"Expression is not valid"
 }
@@ -157,7 +156,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 422
 ```
-Деление на ноль
+Деление на ноль  
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -170,7 +169,6 @@ curl -X 'POST' -w "%{http_code}"\
 ```
 **Ожидаемый ответ:**
 ```json
-```json
 {
    "messsage":"Expression is not valid"
 }
@@ -178,7 +176,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 422
 ```
-Пропущена закрывающая скобка
+Пропущена закрывающая скобка   
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -198,7 +196,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 422
 ```
-Неправильный синтаксис выражения
+Неправильный синтаксис выражения  
 Введите команду:
 ```cmd
 curl -X 'POST' -w "%{http_code}"\
@@ -219,7 +217,7 @@ curl -X 'POST' -w "%{http_code}"\
 422
 ```
 ```
-Запрос с недопустимым методом
+Запрос с недопустимым методом  
 Введите команду:
 ```
 curl -X 'GET' -w "%{http_code}"\
@@ -239,7 +237,7 @@ curl -X 'GET' -w "%{http_code}"\
 ```cmd 
 405
 ```
-Заглушка для 500 ошибки
+Заглушка для 500 ошибки  
 Введите команду:
 ```
 curl -X 'POST' -w "%{http_code}"\
@@ -259,7 +257,7 @@ curl -X 'POST' -w "%{http_code}"\
 ```cmd 
 500
 ```
-Запрос с неправильным Content-Type`ом
+Запрос с неправильным Content-Type`ом  
 Введите команду:
 ```
 curl -X 'POST' -w "%{http_code}"\
