@@ -18,7 +18,7 @@ import (
 func main() {
 	// fmt.Println(bt.Left.Token, bt.Token.Token, bt.Right.Token)
 	// fmt.Println(calculator.Calc("log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)"))
-	fmt.Println(calculator.Calc("log(sqrt(4),sqrt(64))"))
+	fmt.Println(calculator.Calc("sqrt(-64)"))
 	// инициализируем логер и пихаем его в контекст
 	ctx := context.Background()
 	mainLogger := logger.New()
@@ -54,7 +54,6 @@ func main() {
 	mainLogger.Info(ctx, "Server started on port", zap.Int("port", cfg.RestServerPort))
 
 	<-ctx.Done()
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	//Плавно завершаем работу сервера

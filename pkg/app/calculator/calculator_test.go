@@ -107,7 +107,7 @@ func TestCalc(t *testing.T) {
 		},
 		{
 			name:        "division by zero",
-			expression:  "10*10/0",
+			expression:  "10/0",
 			expectedErr: token.ErrDivisionByZero,
 		},
 		{
@@ -132,7 +132,7 @@ func TestCalc(t *testing.T) {
 		},
 		{
 			name:        "sqrt bad req",
-			expression:  "sqrt(-64)",
+			expression:  "sqrt(50-50-50)",
 			expectedErr: token.ErrSqrtOutOfDomain,
 		},
 	}

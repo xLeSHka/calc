@@ -5,6 +5,7 @@ go 1.23.4
 require (
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/stretchr/testify v1.8.4
+	golang.org/x/sync v0.10.0
 )
 
 require (

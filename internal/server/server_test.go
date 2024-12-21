@@ -21,6 +21,7 @@ func TestCalcHandlerSuccessCase(t *testing.T) {
 		expectedResult float64
 		expectedStatus int
 		expectedErrMsg string
+		method         string
 	}{
 		{
 			name:           "simple",
@@ -100,7 +101,7 @@ func TestCalcHandlerSuccessCase(t *testing.T) {
 
 	for _, testCase := range testCasesSucces {
 		t.Run(testCase.name, func(t *testing.T) {
-			//создание body запроса 
+			//создание body запроса
 			var b bytes.Buffer
 			err := json.NewEncoder(&b).Encode(testCase)
 			if err != nil {
