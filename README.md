@@ -288,9 +288,3 @@ curl -X 'POST' -w "%{http_code}"\
     "expression":"ваше выражение"  
 }  
 ```
-
-
-
-
-
-
