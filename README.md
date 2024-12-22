@@ -17,7 +17,7 @@ function = log(a,x) | sqrt(a)
 |+         |2           |
 |-         |2           |
   
-**Unary минус и число нужно выделять в скобки, если минус не стоит после скобки**. Напремер в выражении `12+-3` нужно сделать `12+(-3)`, а в `sqrt(-64)` не нужно писать еще одни скобки. `log(a,x)` представляет из себя `log10(a)`/`log10(x)` то есть `loga(x)`, значит `a > 0 && a != 1` и `x > 0`. `sqrt(a)` это и есть корень квадратный из а, значит `a >= 0`. На этом все, мне было лень добавлять больше функций :0
+**Unary минус и число нужно выделять в скобки, если минус не стоит после скобки**. Напремер в выражении `12+-3` нужно сделать `12+(-3)`, а в `sqrt(-64)` не нужно писать еще одни скобки. `log(a,x)` представляет из себя `log10(a)`/`log10(x)` то есть `loga(x)`. `sqrt(a)` это и есть корень квадратный из а, думаю тут объяснять не нужно. На этом все, мне было лень добавлять больше функций :0
 ## Прежде всего нужно скопировать проект к секбе на компьютер
 Для этого нужно зайти в `Git Bash` в папку, в которой у вас хранятся ваши проекты по Go. Если кто не знает, сделать это можно командой `cd путь_до_папки_с_вашими_проектами`. Например у меня это `C:\Projects\go`. Потом вводим команду ниже, и открываем появившуюся папку `calc` в IDE, например `VS Code`
 ```bash
@@ -58,6 +58,7 @@ go test ./pkg/calculator/ -v -cover
 ```
 ### Curl запросы
 **Запросы вводить нужно не в `cmd` или `power shell`, а в `Git Bash`, если вы скачивали `Git` себе на компьютер, то он у вас должен быть. Так как в `cmd` и `power shell` нужно экранировать например `^`. В итоге читать и писать выражения становится в разы труднее**  
+<br><br><br>
 <table>
 <tr>
 <td> Status </td> <td> Request </td> <td> Response </td>
@@ -67,7 +68,7 @@ go test ./pkg/calculator/ -v -cover
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -92,7 +93,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -115,7 +116,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -138,7 +139,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -161,7 +162,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -173,7 +174,7 @@ curl -X 'POST' -w "%{http_code}" \
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"failed convert RPN to node tree"
 }
 ```
 </td>
@@ -183,7 +184,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -195,7 +196,7 @@ curl -X 'POST' -w "%{http_code}" \
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"division by zero"
 }
 ```
 </td>
@@ -205,7 +206,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -217,7 +218,7 @@ curl -X 'POST' -w "%{http_code}" \
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"right paranthesis missed"
 }
 ```
 </td>
@@ -227,11 +228,11 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
-  "expression": "sqrt(-64)"
+  "expression": "1-1)*log(sqrt(4),sqrt(64))"
 }'
 ```
 </td>
@@ -239,7 +240,7 @@ curl -X 'POST' -w "%{http_code}" \
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"left paranthesis missed"
 }
 ```
 </td>
@@ -249,7 +250,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -261,7 +262,7 @@ curl -X 'POST' -w "%{http_code}" \
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"failed convert RPN to node tree"
 }
 ```
 </td>
@@ -271,7 +272,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: text/plain' \
   -d '{
@@ -283,7 +284,7 @@ curl -X 'POST' -w "%{http_code}" \
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"Content type not allowed"
 }
 ```
 </td>
@@ -293,7 +294,7 @@ curl -X 'POST' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'GET' -w "%{http_code}" \
+curl -X 'GET' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -315,7 +316,7 @@ curl -X 'GET' -w "%{http_code}" \
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}" \
+curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -334,7 +335,6 @@ curl -X 'POST' -w "%{http_code}" \
 </tr>
 
 </table>
-
 ### Swagger-UI
 Если вы подняли этот сервер с `docker`, можно использовать [swagger-ui](http://localhost:8085/), там будет удобный интерфейс для создания своих запросов. 
 ### Postman
