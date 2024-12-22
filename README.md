@@ -58,9 +58,32 @@ go test ./pkg/calculator/ -v -cover
 ```
 ### Curl запросы
 **Запросы вводить нужно не в `cmd` или `power shell`, а в `Git Bash`, если вы скачивали `Git` себе на компьютер, то он у вас должен быть. Так как в `cmd` и `power shell` нужно экранировать например `^`. В итоге читать и писать выражения становится в разы труднее**  
-| Status   | Request                                   |   Response            |
-|:--------:|:--------------------------------------------------------------------------:|:---------------------:|
-| 200      | ```bash curl -X 'POST' -w "%{http_code}" 'http://localhost:9090/api/v1/calculate' -H 'Content-Type: application/json' -d '{ "expression": "2+2*2" }'```|```json { "expression":"2+2*2", }```|
+<br><br><br>
+<table>
+<tr>
+<td> Status </td> <td> Request </td> <td> Response </td>
+</tr>
+<tr> 
+<td> 200 </td> 
+<td>
+```bash
+curl -X 'POST' -w "%{http_code}"\
+'http://localhost:9090/api/v1/calculate' \
+-H 'accept: application/json' \
+-H 'Content-Type: application/json' \
+-d '{
+  "expression": "2+2*2"
+}'
+```
+</td>
+<td>
+```json 
+{ 
+  "expression":"2+2*2", 
+  "result":"6.00000"
+}
+```
+</td>
 Введите команду:
 
 **Ожидаемый ответ:**
