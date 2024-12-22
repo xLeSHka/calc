@@ -232,7 +232,7 @@ curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
-  "expression": "log(sqrt(4),sqrt(64)"
+  "expression": "sqrt(-64)"
 }'
 ```
 </td>
