@@ -174,7 +174,7 @@ curl -X 'POST' -w "%{http_code}"\
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"failed convert RPN to node tree"
 }
 ```
 </td>
@@ -196,7 +196,7 @@ curl -X 'POST' -w "%{http_code}"\
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"division by zero"
 }
 ```
 </td>
@@ -218,7 +218,7 @@ curl -X 'POST' -w "%{http_code}"\
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"right paranthesis missed"
 }
 ```
 </td>
@@ -232,7 +232,7 @@ curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
-  "expression": "log(sqrt(4),sqrt(64)"
+  "expression": "1-1)*log(sqrt(4),sqrt(64))"
 }'
 ```
 </td>
@@ -240,7 +240,7 @@ curl -X 'POST' -w "%{http_code}"\
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"left paranthesis missed"
 }
 ```
 </td>
@@ -262,7 +262,7 @@ curl -X 'POST' -w "%{http_code}"\
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"failed convert RPN to node tree"
 }
 ```
 </td>
@@ -284,7 +284,7 @@ curl -X 'POST' -w "%{http_code}"\
   
 ```json
 {
-   "messsage":"Expression is not valid"
+   "messsage":"Content type not allowed"
 }
 ```
 </td>

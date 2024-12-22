@@ -7,8 +7,6 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/xLeSHka/calc/pkg/app/calculator"
-	"github.com/xLeSHka/calc/pkg/logger"
-	"go.uber.org/zap"
 )
 
 type Server struct {
@@ -37,27 +35,23 @@ func New(ctx context.Context, port int) (*Server, error) {
 func (s *Server) calculate(c echo.Context) error {
 	//проверка Content-Type в запросе
 	if c.Request().Header.Get("Content-Type") != "application/json" {
-		logger.New().Info(context.Background(), "content type not allowed", zap.String("Content-Type", c.Request().Header.Get("Content-Type")), zap.String("required Content-Type", "application/json"))
-		return echo.NewHTTPError(422, "Expression is not valid")
+		return echo.NewHTTPError(422, "Content type not allowed")
 	}
 	req := Request{}
 
 	err := c.Bind(&req)
 	if err != nil {
-		logger.New().Error(context.Background(), "req", zap.String("error", err.Error()))
 
 		return echo.NewHTTPError(422, "Expression is not valid")
 	}
 	//заглушка для 500 ответа
 	if req.Expression == "internal" {
-		logger.New().Error(context.Background(), "req", zap.String("expression", "internal"))
 		return echo.NewHTTPError(500, "Internal server error")
 	}
 	//отправляем выражение на вычисление
 	res, err := calculator.Calc(req.Expression)
 	if err != nil {
-		logger.New().Error(context.Background(), "req", zap.String("error", err.Error()))
-		return echo.NewHTTPError(422, "Expression is not valid")
+		return echo.NewHTTPError(422, err.Error())
 	}
 	return c.JSON(http.StatusOK, Response{Result: res, Expression: req.Expression})
 }

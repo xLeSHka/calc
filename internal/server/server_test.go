@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +13,8 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"github.com/xLeSHka/calc/pkg/app/calculator"
+	"github.com/xLeSHka/calc/pkg/app/token"
 )
 
 func TestCalcHandlerSuccessCase(t *testing.T) {
@@ -50,43 +53,43 @@ func TestCalcHandlerSuccessCase(t *testing.T) {
 		{
 			name:           "simple1",
 			Expression:     "1+1*",
-			expectedErrMsg: "code=422, message=Expression is not valid",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", token.ErrConvertRPNToNT),
 			expectedStatus: 422,
 		},
 		{
 			name:           "priority",
 			Expression:     "2+2**2",
-			expectedErrMsg: "code=422, message=Expression is not valid",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", token.ErrConvertRPNToNT),
 			expectedStatus: 422,
 		},
 		{
 			name:           "right paranthes",
 			Expression:     "((2+2-*(2",
-			expectedErrMsg: "code=422, message=Expression is not valid",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", token.ErrMissRightParanthesis),
 			expectedStatus: 422,
 		},
 		{
 			name:           "left paranthes",
 			Expression:     "2+2)-2",
-			expectedErrMsg: "code=422, message=Expression is not valid",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", token.ErrMissLeftParanthesis),
 			expectedStatus: 422,
 		},
 		{
 			name:           "empty",
 			Expression:     "",
-			expectedErrMsg: "code=422, message=Expression is not valid",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", token.ErrConvertRPNToNT),
 			expectedStatus: 422,
 		},
 		{
 			name:           "division by zero",
 			Expression:     "10/0",
-			expectedErrMsg: "code=422, message=Expression is not valid",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", calculator.ErrDivisionByZero),
 			expectedStatus: 422,
 		},
 		{
 			name:           "invaid operator",
 			Expression:     "10&0",
-			expectedErrMsg: "code=422, message=Expression is not valid",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", token.ErrUnknownSymbol),
 			expectedStatus: 422,
 		},
 		{
@@ -94,6 +97,30 @@ func TestCalcHandlerSuccessCase(t *testing.T) {
 			Expression:     "internal",
 			expectedErrMsg: "code=500, message=Internal server error",
 			expectedStatus: 500,
+		},
+		{
+			name:           "log bad req",
+			Expression:     "log(-2,8)",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", calculator.ErrLogNotDefinedFor),
+			expectedStatus: 422,
+		},
+		{
+			name:           "log another bad req",
+			Expression:     "log(1,8)",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", calculator.ErrLogNotDefinedFor),
+			expectedStatus: 422,
+		},
+		{
+			name:           "log another bad req",
+			Expression:     "log(16,(-1))",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s", calculator.ErrLogOutOfFuncDomain),
+			expectedStatus: 422,
+		},
+		{
+			name:           "sqrt bad req",
+			Expression:     "sqrt(50-50-50)",
+			expectedErrMsg: fmt.Sprintf("code=422, message=%s",calculator.ErrSqrtOutOfDomain),
+			expectedStatus: 422,
 		},
 	}
 	// testLogger := logger.New()

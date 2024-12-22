@@ -69,7 +69,7 @@ func NewToken(token string, tokenType Type, asc Associativity) (*Token, error) {
 }
 
 // получаем приоритет каждого оператора
-func (t *Token) GetPrecedence() int {
+func (t *Token) GetPrecedence() (int, error) {
 	leftAssociativity := map[string]int{
 		"+": 2,
 		"-": 2,
@@ -83,11 +83,21 @@ func (t *Token) GetPrecedence() int {
 
 	switch t.Associativity {
 	case Left:
-		return leftAssociativity[t.Token]
+		if _, ok := leftAssociativity[t.Token]; ok {
+			return leftAssociativity[t.Token], nil
+		} else {
+			return 0, ErrUnknownOperator
+		}
 	case Right:
-		return rightAssociativity[t.Token]
+		if _, ok := rightAssociativity[t.Token]; ok {
+			return rightAssociativity[t.Token], nil
+		} else {
+			return 0, ErrUnknownOperator
+		}
+	case None:
+		return 0, ErrTokenIsNotAnOperator
 	default:
-		panic("что то пошло очень сильно не так")
+		return 0, ErrTokenIsNotAnOperator
 	}
 }
 
@@ -164,7 +174,7 @@ func tokenize(expr string) ([]*Token, error) {
 				return nil, ErrUnexpectedSymbol
 			}
 		case S5:
-			if isOp || isParanth || isSep{
+			if isOp || isParanth || isSep {
 				state = S1
 			} else if isDigit {
 				state = S2
@@ -260,19 +270,30 @@ func toRPN(tokens []*Token) ([]*Token, error) {
 		case LParanthesis, Function:
 			stack = append(stack, tkn)
 		case Operator:
-			for len(stack) > 0 && (stack[len(stack)-1].Type == Operator) && ((stack[len(stack)-1].GetPrecedence() > tkn.GetPrecedence()) ||
-				(stack[len(stack)-1].GetPrecedence() == tkn.GetPrecedence() && tkn.Associativity == Left)) {
-				stackToQueue(&queue, &stack)
+			for len(stack) > 0 && (stack[len(stack)-1].Type == Operator) {
+				stackPrec, err := stack[len(stack)-1].GetPrecedence()
+				if err != nil {
+					return nil, err
+				}
+				tknPrec, err := tkn.GetPrecedence()
+				if err != nil {
+					return nil, err
+				}
+				if (stackPrec > tknPrec) || (stackPrec == tknPrec && tkn.Associativity == Left) {
+					stackToQueue(&queue, &stack)
+				} else {
+					break
+				}
 			}
 			stack = append(stack, tkn)
 		case RParanthesis:
 			if len(stack) == 0 {
-				return nil, ErrNonBalancedParanthesis
+				return nil, ErrMissLeftParanthesis
 			}
 			for stack[len(stack)-1].Type != LParanthesis {
 				stackToQueue(&queue, &stack)
 				if len(stack) == 0 {
-					return nil, ErrNonBalancedParanthesis
+					return nil, ErrMissLeftParanthesis
 				}
 			}
 			stack = stack[:len(stack)-1]
@@ -293,7 +314,7 @@ func toRPN(tokens []*Token) ([]*Token, error) {
 	}
 	for len(stack) > 0 {
 		if stack[len(stack)-1].Type == LParanthesis {
-			return nil, ErrMisedSepOrParanth
+			return nil, ErrMissRightParanthesis
 		}
 		stackToQueue(&queue, &stack)
 	}

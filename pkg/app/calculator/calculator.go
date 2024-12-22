@@ -11,7 +11,7 @@ import (
 
 func checkedDivisionByZero(a, b float64) (float64, error) {
 	if b == 0 {
-		return 0, token.ErrDivisionByZero
+		return 0, ErrDivisionByZero
 	}
 	return a / b, nil
 }
@@ -64,7 +64,7 @@ func calculate(node *token.Node, ctx context.Context) error {
 				res, err := checkedDivisionByZero(a, b)
 				if err != nil {
 					ctx.Done()
-					return token.ErrDivisionByZero
+					return err
 				}
 				node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
 			} else if node.Token.Token == "^" {
@@ -96,11 +96,11 @@ func calculate(node *token.Node, ctx context.Context) error {
 			}
 			if a <= 0 || a == 1 {
 				ctx.Done()
-				return token.ErrLogNotDefinedFor
+				return ErrLogNotDefinedFor
 			}
 			if b <= 0.0 {
 				ctx.Done()
-				return token.ErrLogOutOfFuncDomain
+				return ErrLogOutOfFuncDomain
 			}
 			node.Token.Token = strconv.FormatFloat(math.Log(b)/math.Log(a), 'f', 5, 64)
 		}
@@ -112,7 +112,7 @@ func calculate(node *token.Node, ctx context.Context) error {
 			}
 			if a < 0.0 {
 				ctx.Done()
-				return token.ErrSqrtOutOfDomain
+				return ErrSqrtOutOfDomain
 			}
 			node.Token.Token = strconv.FormatFloat(math.Sqrt(a), 'f', 5, 64)
 		}
@@ -130,7 +130,6 @@ func Calc(expression string) (float64, error) {
 		return calculate(expressionNT, ctx)
 	})
 	if err := eg.Wait(); err != nil {
-		// logger.New().Error(ctx, "error calculate expression", zap.String("error:", err.Error()))
 		return 0, err
 	}
 	res, err := strconv.ParseFloat(expressionNT.Token.Token, 64)

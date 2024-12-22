@@ -93,12 +93,12 @@ func TestCalc(t *testing.T) {
 		{
 			name:        "right paranthes",
 			expression:  "((2+2-*(2",
-			expectedErr: token.ErrMisedSepOrParanth,
+			expectedErr: token.ErrMissRightParanthesis,
 		},
 		{
 			name:        "left paranthes",
 			expression:  "2+2)-2",
-			expectedErr: token.ErrNonBalancedParanthesis,
+			expectedErr: token.ErrMissLeftParanthesis,
 		},
 		{
 			name:        "empty",
@@ -108,7 +108,7 @@ func TestCalc(t *testing.T) {
 		{
 			name:        "division by zero",
 			expression:  "10/0",
-			expectedErr: token.ErrDivisionByZero,
+			expectedErr: ErrDivisionByZero,
 		},
 		{
 			name:        "invaid operator",
@@ -118,22 +118,22 @@ func TestCalc(t *testing.T) {
 		{
 			name:        "log bad req",
 			expression:  "log(-2,8)",
-			expectedErr: token.ErrLogNotDefinedFor,
+			expectedErr: ErrLogNotDefinedFor,
 		},
 		{
 			name:        "log another bad req",
 			expression:  "log(1,8)",
-			expectedErr: token.ErrLogNotDefinedFor,
+			expectedErr: ErrLogNotDefinedFor,
 		},
 		{
 			name:        "log another bad req",
 			expression:  "log(16,(-1))",
-			expectedErr: token.ErrLogOutOfFuncDomain,
+			expectedErr: ErrLogOutOfFuncDomain,
 		},
 		{
 			name:        "sqrt bad req",
 			expression:  "sqrt(50-50-50)",
-			expectedErr: token.ErrSqrtOutOfDomain,
+			expectedErr: ErrSqrtOutOfDomain,
 		},
 	}
 
