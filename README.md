@@ -66,234 +66,275 @@ go test ./pkg/calculator/ -v -cover
 <tr> 
 <td> 200 </td> 
 <td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
 'http://localhost:9090/api/v1/calculate' \
--H 'accept: application/json' \
 -H 'Content-Type: application/json' \
 -d '{
   "expression": "2+2*2"
 }'
 ```
+
 </td>
 <td>
+  
 ```json 
 { 
   "expression":"2+2*2", 
   "result":"6.00000"
 }
 ```
+
 </td>
-Введите команду:
-
-**Ожидаемый ответ:**
-
-```bash
-200
-```
-Правильный запрос  
-Введите команду:
+</tr>
+<tr>
+<td> 200 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
-  'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
+'http://localhost:9090/api/v1/calculate' \
+-H 'Content-Type: application/json' \
+-d '{
   "expression": "log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "expression":"log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)",
    "result":"2.56689"
 }
 ```
-```bash
-200
-```
-Правильный запрос  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 200 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
-  'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
+'http://localhost:9090/api/v1/calculate' \
+-H 'Content-Type: application/json' \
+-d '{
   "expression": "log(sqrt(4),sqrt(64))"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "expression":"log(sqrt(4),sqrt(64))",
    "result":"3"
 }
 ```
-```bash
-200
-```
-Правильный запрос  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 200 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
-  'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
-  -H 'Content-Type: application/json' \
-  -d '{
+'http://localhost:9090/api/v1/calculate' \
+-H 'Content-Type: application/json' \
+-d '{
   "expression": "log(sqrt(4),sqrt(64))^sqrt(81)*(-1)"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "expression":"log(sqrt(4),sqrt(64))^sqrt(81)*(-1)",
    "result":"-19683"
 }
 ```
-```bash
-200
-```
-Унарный минус не выделен скобками  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 422 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "expression": "log(sqrt(4),sqrt(64))^sqrt(81)*-1"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "messsage":"Expression is not valid"
 }
 ```
-```bash
-422
-```
-Деление на ноль  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 422 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "expression": "log(sqrt(4),sqrt(64))/0"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "messsage":"Expression is not valid"
 }
 ```
-```bash
-422
-```
-Пропущена закрывающая скобка   
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 422 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "expression": "log(sqrt(4),sqrt(64)"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "messsage":"Expression is not valid"
 }
 ```
-```bash
-422
-```
-Неправильный синтаксис выражения  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 422 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "expression": "log(sqrt(4),sqrt(64)"
+}'
+```
+</td>
+<td>
+  
+```json
+{
+   "messsage":"Expression is not valid"
+}
+```
+</td>
+</tr>
+<tr>
+<td> 422 </td> 
+<td>
+  
+```bash
+curl -X 'POST' -w "%{http_code}"\
+  'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
   "expression": "2*2*"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "messsage":"Expression is not valid"
 }
 ```
-```bash
-422
-```
-Запрос с неправильным Content-Type`ом  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 422 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
- -H 'accept: text/plain' \
   -H 'Content-Type: text/plain' \
   -d '{
   "expression": "2+2+2"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
-   "message":"Expression is not valid"
+   "messsage":"Expression is not valid"
 }
 ```
-```bash
-422
-```
-Запрос с недопустимым методом  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 405 </td> 
+<td>
+  
 ```bash
 curl -X 'GET' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "expression": "2+2*2"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "message":"Method Not Allowed"
 }
 ```
-```bash
-405
-```
-Заглушка для 500 ошибки  
-Введите команду:
+</td>
+</tr>
+<tr>
+<td> 500 </td> 
+<td>
+  
 ```bash
 curl -X 'POST' -w "%{http_code}"\
   'http://localhost:9090/api/v1/calculate' \
- -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
   "expression": "internal"
 }'
 ```
-**Ожидаемый ответ:**
+</td>
+<td>
+  
 ```json
 {
    "message":"Internal server error"
 }
 ```
-```bash
-500
-```
+</td>
+</tr>
+
+</table>
 ### Swagger-UI
 Если вы подняли этот сервер с `docker`, можно использовать [swagger-ui](http://localhost:8085/), там будет удобный интерфейс для создания своих запросов. 
 ### Postman
