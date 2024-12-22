@@ -68,7 +68,7 @@ go test ./pkg/calculator/ -v -cover
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -93,7 +93,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -116,7 +116,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -139,7 +139,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
 'http://localhost:9090/api/v1/calculate' \
 -H 'Content-Type: application/json' \
 -d '{
@@ -162,7 +162,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -184,7 +184,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -206,7 +206,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -228,7 +228,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -250,7 +250,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -272,7 +272,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: text/plain' \
   -d '{
@@ -294,7 +294,7 @@ curl -X 'POST' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'GET' -w "%{http_code}"\
+curl -X 'GET' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -316,7 +316,7 @@ curl -X 'GET' -w "%{http_code}"\
 <td>
   
 ```bash
-curl -X 'POST' -w "%{http_code}"\
+curl -X 'POST' -w "%{http_code}" \
   'http://localhost:9090/api/v1/calculate' \
   -H 'Content-Type: application/json' \
   -d '{
