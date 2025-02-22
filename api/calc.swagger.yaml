@@ -1,71 +1,248 @@
 openapi: 3.0.1
 info:
-  title: calc/calc.proto
+  title: Yandex Go 2025 Calc service
   version: version not set
+  description: >
+    API для конкурентного вычисления ООООЧЕНЬ сложных математических операций(калькулятор)
+tags:
+  - name: Expressions
+    description: 'Управление выражениями: создание и получение'
+  - name: Tasks
+    description: 'Управление заданиями: создание и получение результата'
 servers:
-- url: http://localhost:9090
+- url: http://localhost:9090/api/v1
 paths:
-  /api/v1/calculate:
+  /calculate:
     post:
       tags:
-      - CalcService
-      operationId: CalcService_Calculate
+        - Expressions
+      summary: Создание выражения
+      description: Возвращает ID выражения
+      operationId: createExpression
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/calcCalculateRequest'
-            example:
-                expression: "log(18,18)^(-9)/3.14*(-12-3)*3/(-10)+2*sqrt(4)"
+              $ref: '#/components/schemas/createExpressionReq'
         required: true
       responses:
-        "200":
-          description: A successful response.
+        "201":
+          description: Выражение принято для вычисления
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/calcCalculateResponse'
-              example:
-                result: −82.4
-          required: true
+                $ref: '#/components/schemas/createExpressionResp'
+        "400":
+          description: Невалидное тело запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         "422":
-          description: Unprocessable Entity
+          description: Невалидные данные
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/invalidError'
-              example:
-                error: "Expression is not valid"
+                $ref: '#/components/schemas/Error'
         "500":
-          description: Internal server error
+          description: Внутренняя ошибка сервиса
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/internalError'
-              example:
-                error: "Internal server error"
-      x-codegen-request-body-name: body
+                $ref: '#/components/schemas/Error'
+  /expressions:
+    get:
+      tags:
+        - Expressions
+      summary: Получение выражений с пагинацией в порядке создания от новых к старым
+      description: Возвращает список выражений и общее количество выражений
+      operationId: getExpressions
+      responses:
+        "200":
+          description: Список выражений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/createExpressionResp'
+        "404":
+          description: Выражений не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Внутренняя ошибка сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /expressions/{id}:
+    get:
+      tags:
+        - Expressions
+      summary: Получение выражения по ID
+      description: Возвращает выражение по ID
+      operationId: getExpression
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID выражения
+          schema:
+            type: number
+            format: int64
+      responses:
+        "200":
+          description: Список выражений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/createExpressionResp'
+        "404":
+          description: Выражений не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Внутренняя ошибка сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /internal/task:
+    get:
+      tags:
+        - Tasks
+      summary: Получение задачи
+      description: Возвращает задачу
+      operationId: getTask
+      responses:
+        "200":
+          description: Задача
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/createExpressionResp'
+        "404":
+          description: Выражений не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Внутренняя ошибка сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
-    calcCalculateRequest:
+    Error:
+      type: object
+      description: Ответ с описанием ошибки
+      properties:
+        status:
+          type: string
+          description: Статус ответа
+          example: "error"
+        message:
+          type: string
+          description: Информация о ошибке
+          example: "error message"
+      required:
+        - status
+        - message
+    createExpressionReq:
       type: object
       properties:
         expression:
           type: string
-    calcCalculateResponse:
+          description: Выражение которое нужно вычислить
+          example: "log(18,18)^(-9)/3.14*(-12-3)*3/(-10)+2*sqrt(4)"
+      required:
+        - expression
+    createExpressionResp:
       type: object
       properties:
+        id:
+          type: integer
+          description: ID созданного выражения
+          format: int64
+          example: 0
+      required:
+        - id
+    getExpression:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: ID выражения
+          format: int64
+          example: 0
+        status:
+          type: string
+          description: Статус выражания
+          example: "Waiting"
         result:
           type: number
-          format: float
-    invalidError:
+          description: Результат выражения если оно решено
+          format: double
+          example: 0.2
+      required:
+        - id
+        - status
+    getTask:
       type: object
       properties:
-        error:
-          type: string
-    internalError:
+        id:
+          type: integer
+          description: ID выражения
+          format: int64
+          example: 0
+        arg1:
+          type: number
+          description: Первый аргумент операции
+          format: double
+          example: 0.3
+        arg2:
+          type: number
+          description: Второй аргумент операции, может быть ненужным
+          format: double
+          example: 0.5
+        operation:
+          type: integer
+          description: Операция в виде byte числа
+          format: int32
+          example: 0
+        operation_time:
+          type: integer
+          description: Время выполнения операции в мс
+          example: 1000000
+      required:
+        - id
+        - arg1
+        - operation
+        - operation_time
+    postResult:
       type: object
       properties:
-        error:
-          type: string
-x-original-swagger-version: "2.0"
+        id:
+          type: integer
+          description: ID выражения
+          format: int64
+          example: 0
+        result:
+          type: number
+          description: Результат выполнения операции
+          format: double
+          example: 0.5
+      required:
+        - id
+        - result

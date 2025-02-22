@@ -2,9 +2,8 @@ package calculator
 
 import (
 	"errors"
+	"github.com/xLeSHka/calc/orchestrator/internal/app/token"
 	"testing"
-
-	"github.com/xLeSHka/calc/pkg/app/token"
 )
 
 func TestCalc(t *testing.T) {

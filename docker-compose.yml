@@ -4,15 +4,15 @@ services:
     build: 
       context: .
     env_file:
-      - ./config.env
+      - config.env
     ports:
       - "9090:9090"
-  swagger-ui:
-    image: swaggerapi/swagger-ui
-    container_name: swagger-ui
-    ports:
-      - "8085:8080"
-    volumes:
-      - ./api/calc.swagger.yaml:/usr/share/nginx/html/swagger/calc.swagger.yaml
-    environment:
-      API_URL: swagger/calc.swagger.yaml
+#  swagger-ui:
+#    image: swaggerapi/swagger-ui
+#    container_name: swagger-ui
+#    ports:
+#      - "8085:8080"
+#    volumes:
+#      - ./api/calc.swagger.yaml:/usr/share/nginx/html/swagger/calc.swagger.yaml
+#    environment:
+#      API_URL: swagger/calc.swagger.yaml
