@@ -63,7 +63,7 @@ func (s *Service) CreateExpression(expression string) (int64, *customError.Custo
 	go s.Calculator.Calc(*expressionNT, id)
 	return id, nil
 }
-func (s *Service) SetResult(id, expressionID int64, result *float64, error *string) *customError.CustomError {
+func (s *Service) SetResult(id, expressionID int64, result float64, error *string) *customError.CustomError {
 	task := &models.Task{
 		ID:           id,
 		ExpressionID: expressionID,

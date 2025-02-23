@@ -315,47 +315,39 @@ func solveExpr() {
 		logger.Info("", zap.Int64("id", j.ID), zap.Int64("expression id", j.ExpressionID))
 		switch j.Operation {
 		case models.Addition:
-			res := j.Arg1 + j.Arg2
-			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+			Service.SetResult(j.ID, j.ExpressionID, j.Arg1+j.Arg2, nil)
 		case models.Subtraction:
-			res := j.Arg1 - j.Arg2
-			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+			Service.SetResult(j.ID, j.ExpressionID, j.Arg1-j.Arg2, nil)
 		case models.Multiplication:
-			res := j.Arg1 * j.Arg2
-			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+			Service.SetResult(j.ID, j.ExpressionID, j.Arg1*j.Arg2, nil)
 		case models.Division:
 			if j.Arg2 == 0 {
 				err := "Division by zero"
-				Service.SetResult(j.ID, j.ExpressionID, nil, &err)
+				Service.SetResult(j.ID, j.ExpressionID, 0.0, &err)
 			} else {
-				res := j.Arg1 / j.Arg2
-				Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+				Service.SetResult(j.ID, j.ExpressionID, j.Arg1/j.Arg2, nil)
 
 			}
 		case models.Exponentiation:
-			res := math.Pow(j.Arg1, j.Arg2)
-			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+			Service.SetResult(j.ID, j.ExpressionID, math.Pow(j.Arg1, j.Arg2), nil)
 		case models.UnaryMinus:
-			res := -j.Arg1
-			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+			Service.SetResult(j.ID, j.ExpressionID, -j.Arg1, nil)
 		case models.Logarithm:
 			if j.Arg1 <= 0 || j.Arg1 == 1 {
 				errMsg := "log not defined"
-				Service.SetResult(j.ID, j.ExpressionID, nil, &errMsg)
+				Service.SetResult(j.ID, j.ExpressionID, 0.0, &errMsg)
 			} else if j.Arg2 <= 0.0 {
 				errMsg := "log out of domain"
-				Service.SetResult(j.ID, j.ExpressionID, nil, &errMsg)
+				Service.SetResult(j.ID, j.ExpressionID, 0.0, &errMsg)
 			} else {
-				res := math.Log(j.Arg2) / math.Log(j.Arg1)
-				Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+				Service.SetResult(j.ID, j.ExpressionID, math.Log(j.Arg2)/math.Log(j.Arg1), nil)
 			}
 		case models.SquareRoot:
 			if j.Arg1 < 0 {
 				errMsg := "negative square"
-				Service.SetResult(j.ID, j.ExpressionID, nil, &errMsg)
+				Service.SetResult(j.ID, j.ExpressionID, 0.0, &errMsg)
 			} else {
-				res := math.Sqrt(j.Arg1)
-				Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+				Service.SetResult(j.ID, j.ExpressionID, math.Sqrt(j.Arg1), nil)
 			}
 		}
 	}

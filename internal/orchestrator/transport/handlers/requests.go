@@ -13,9 +13,10 @@ type GetExpressionReq struct {
 }
 
 type GetExpressionResp struct {
-	ID     int64    `json:"id"`
-	Status string   `json:"status"`
-	Result *float64 `json:"result,omitempty"`
+	ID         int64    `json:"id"`
+	Expression string   `json:"expression"`
+	Status     string   `json:"status"`
+	Result     *float64 `json:"result,omitempty"`
 }
 type GetExpressionsReq struct {
 	Size int `form:"size" binding:"omitempty,gte=0"`
@@ -31,8 +32,8 @@ type GetTaskResp struct {
 }
 
 type PostResult struct {
-	ID           *int64   `json:"id" binding:"required,gte=1"`
-	ExpressionID *int64   `json:"expression_id" binding:"required"`
-	Result       *float64 `json:"result" binding:"omitempty"`
-	Error        *string  `json:"error" binding:"omitempty"`
+	ID           *int64  `json:"id" binding:"required,gte=1"`
+	ExpressionID *int64  `json:"expression_id" binding:"required"`
+	Result       float64 `json:"result" binding:"omitempty"`
+	Error        *string `json:"error" binding:"omitempty"`
 }

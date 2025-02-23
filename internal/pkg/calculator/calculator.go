@@ -95,11 +95,11 @@ func (c *Calculator) ReceiveResult(task *models.Task) {
 	t, _ := c.Tasks[task.ID]
 	defer close(t.Result)
 	defer close(t.Error)
-	if task.Result != nil {
-		t.Result <- *task.Result
+	if task.Error != nil {
+		t.Error <- fmt.Errorf("Failed calculate, error: %s", *task.Error)
 
 	} else {
-		t.Error <- fmt.Errorf("Failed calculate, error: %s", *task.Error)
+		t.Result <- task.Result
 	}
 }
 func (c *Calculator) calculate(node *token.Node, expressionID int64, ctx context.Context) error {

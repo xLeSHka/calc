@@ -31,6 +31,6 @@ type Task struct {
 	Arg2          float64   `json:"arg2"`
 	Operation     Operation `json:"operation"`
 	OperationTime int64     `json:"operation_time"`
-	Result        *float64  `json:"result,omitempty"`
+	Result        float64   `json:"result,omitempty"`
 	Error         *string   `json:"error,omitempty"`
 }
