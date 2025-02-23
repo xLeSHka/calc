@@ -13,9 +13,10 @@ type GetExpressionReq struct {
 }
 
 type GetExpressionResp struct {
-	ID     int64    `json:"id"`
-	Status string   `json:"status"`
-	Result *float64 `json:"result,omitempty"`
+	ID         int64    `json:"id"`
+	Expression string   `json:"expression"`
+	Status     string   `json:"status"`
+	Result     *float64 `json:"result,omitempty"`
 }
 type GetExpressionsReq struct {
 	Size int `form:"size" binding:"omitempty,gte=0"`
