@@ -37,8 +37,6 @@ docker-compose up -d
 ![Node Tree](./readme/nodeTree.jpg)    
 Пример    
 ![Пример](./readme/example.jpg)
-### Диаграмма вычисления выражения
-![Вычисление выражения](./readme/Calc.jpg)  
 Диаграмма функции calculate  
 ![Диаграмма функции calculate](./readme/solveLogic.jpg)
 - Получение выражения  

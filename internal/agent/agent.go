@@ -22,7 +22,7 @@ type Agent struct {
 	Results        chan models.Task
 	Wg             *sync.WaitGroup
 	Log            *zap.Logger
-	Shotdown       chan struct{}
+	Shutdown       chan struct{}
 	URL            string
 }
 type PostResult struct {
@@ -37,7 +37,7 @@ func (a *Agent) Recieve() {
 	client := http.DefaultClient
 	for {
 		select {
-		case <-a.Shotdown:
+		case <-a.Shutdown:
 			return
 		default:
 			req, _ := http.NewRequest(http.MethodGet, a.URL, nil)
@@ -72,7 +72,7 @@ func (a *Agent) Send() {
 	}
 	for {
 		select {
-		case <-a.Shotdown:
+		case <-a.Shutdown:
 			for {
 				select {
 				case task, ok := <-a.Results:
@@ -166,7 +166,7 @@ func (a *Agent) Start(ctx context.Context) error {
 	return nil
 }
 func (a *Agent) Stop(ctx context.Context) error {
-	close(a.Shotdown)
+	close(a.Shutdown)
 	close(a.Jobs)
 	defer close(a.Results)
 	a.Wg.Wait()
@@ -187,6 +187,7 @@ func (a *Agent) Worker() {
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
 				Result:       &res,
+				Error:        nil,
 			}
 			a.Results <- t
 		case models.Subtraction:
@@ -195,6 +196,7 @@ func (a *Agent) Worker() {
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
 				Result:       &res,
+				Error:        nil,
 			}
 			a.Results <- t
 		case models.Multiplication:
@@ -203,6 +205,7 @@ func (a *Agent) Worker() {
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
 				Result:       &res,
+				Error:        nil,
 			}
 			a.Results <- t
 		case models.Division:
@@ -213,9 +216,11 @@ func (a *Agent) Worker() {
 			if j.Arg2 == 0 {
 				errMsg := ErrDivisionByZero.Error()
 				t.Error = &errMsg
+				t.Result = nil
 			} else {
 				res := j.Arg1 / j.Arg2
 				t.Result = &res
+				t.Error = nil
 			}
 			a.Results <- t
 		case models.Exponentiation:
@@ -224,6 +229,7 @@ func (a *Agent) Worker() {
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
 				Result:       &res,
+				Error:        nil,
 			}
 			a.Results <- t
 		case models.UnaryMinus:
@@ -232,6 +238,7 @@ func (a *Agent) Worker() {
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
 				Result:       &res,
+				Error:        nil,
 			}
 			a.Results <- t
 		case models.Logarithm:
@@ -242,12 +249,15 @@ func (a *Agent) Worker() {
 			if j.Arg1 <= 0 || j.Arg1 == 1 {
 				errMsg := ErrLogNotDefinedFor.Error()
 				t.Error = &errMsg
+				t.Result = nil
 			} else if j.Arg2 <= 0.0 {
 				errMsg := ErrLogOutOfFuncDomain.Error()
 				t.Error = &errMsg
+				t.Result = nil
 			} else {
 				res := math.Log(j.Arg2) / math.Log(j.Arg1)
 				t.Result = &res
+				t.Error = nil
 			}
 			a.Results <- t
 		case models.SquareRoot:
@@ -258,9 +268,11 @@ func (a *Agent) Worker() {
 			if j.Arg1 < 0 {
 				errMsg := ErrSqrtOutOfDomain.Error()
 				t.Error = &errMsg
+				t.Result = nil
 			} else {
 				res := math.Sqrt(j.Arg1)
 				t.Result = &res
+				t.Error = nil
 			}
 			a.Results <- t
 		}
@@ -273,7 +285,7 @@ func New(config config2.Config, lc fx.Lifecycle, log *zap.Logger) *Agent {
 		ComputingPower: config.ComputingPower,
 		Wg:             &sync.WaitGroup{},
 		Log:            log,
-		Shotdown:       make(chan struct{}),
+		Shutdown:       make(chan struct{}),
 		URL:            fmt.Sprintf("http://%s:%d/api/v1/internal/task", config.ServerHost, config.ServerPort),
 	}
 	log.Info("Agent created")
