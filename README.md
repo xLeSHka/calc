@@ -30,7 +30,6 @@ git clone https://github.com/xLeSHka/calc.git
 docker-compose up -d
 ```
 ## Устройство работы сервиса
-### Эндпоинты
 - Создание выражения  
 ![Создание выражения](./readme/createExpression.jpg)
 1. При парсинге выражения составляется Node Tree  
