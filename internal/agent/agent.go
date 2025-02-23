@@ -26,10 +26,10 @@ type Agent struct {
 	URL            string
 }
 type PostResult struct {
-	ID           int64    `json:"id"`
-	ExpressionID int64    `json:"expression_id"`
-	Result       *float64 `json:"result,omitempty"`
-	Error        *string  `json:"error,omitempty"`
+	ID           int64   `json:"id"`
+	ExpressionID int64   `json:"expression_id"`
+	Result       float64 `json:"result,omitempty"`
+	Error        *string `json:"error,omitempty"`
 }
 
 func (a *Agent) Recieve() {
@@ -186,7 +186,7 @@ func (a *Agent) Worker() {
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+				Result:       res,
 				Error:        nil,
 			}
 			a.Results <- t
@@ -195,7 +195,7 @@ func (a *Agent) Worker() {
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+				Result:       res,
 				Error:        nil,
 			}
 			a.Results <- t
@@ -204,7 +204,7 @@ func (a *Agent) Worker() {
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+				Result:       res,
 				Error:        nil,
 			}
 			a.Results <- t
@@ -216,10 +216,10 @@ func (a *Agent) Worker() {
 			if j.Arg2 == 0 {
 				errMsg := ErrDivisionByZero.Error()
 				t.Error = &errMsg
-				t.Result = nil
+				t.Result = 0.0
 			} else {
 				res := j.Arg1 / j.Arg2
-				t.Result = &res
+				t.Result = res
 				t.Error = nil
 			}
 			a.Results <- t
@@ -228,7 +228,7 @@ func (a *Agent) Worker() {
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+				Result:       res,
 				Error:        nil,
 			}
 			a.Results <- t
@@ -237,7 +237,7 @@ func (a *Agent) Worker() {
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+				Result:       res,
 				Error:        nil,
 			}
 			a.Results <- t
@@ -249,14 +249,14 @@ func (a *Agent) Worker() {
 			if j.Arg1 <= 0 || j.Arg1 == 1 {
 				errMsg := ErrLogNotDefinedFor.Error()
 				t.Error = &errMsg
-				t.Result = nil
+				t.Result = .0
 			} else if j.Arg2 <= 0.0 {
 				errMsg := ErrLogOutOfFuncDomain.Error()
 				t.Error = &errMsg
-				t.Result = nil
+				t.Result = 0.0
 			} else {
 				res := math.Log(j.Arg2) / math.Log(j.Arg1)
-				t.Result = &res
+				t.Result = res
 				t.Error = nil
 			}
 			a.Results <- t
@@ -268,10 +268,10 @@ func (a *Agent) Worker() {
 			if j.Arg1 < 0 {
 				errMsg := ErrSqrtOutOfDomain.Error()
 				t.Error = &errMsg
-				t.Result = nil
+				t.Result = 0.0
 			} else {
 				res := math.Sqrt(j.Arg1)
-				t.Result = &res
+				t.Result = res
 				t.Error = nil
 			}
 			a.Results <- t

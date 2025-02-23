@@ -31,8 +31,8 @@ type GetTaskResp struct {
 }
 
 type PostResult struct {
-	ID           *int64   `json:"id" binding:"required,gte=1"`
-	ExpressionID *int64   `json:"expression_id" binding:"required"`
-	Result       *float64 `json:"result" binding:"omitempty"`
-	Error        *string  `json:"error" binding:"omitempty"`
+	ID           *int64  `json:"id" binding:"required,gte=1"`
+	ExpressionID *int64  `json:"expression_id" binding:"required"`
+	Result       float64 `json:"result" binding:"omitempty"`
+	Error        *string `json:"error" binding:"omitempty"`
 }
