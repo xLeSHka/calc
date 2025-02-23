@@ -73,7 +73,7 @@ func (s *Service) SetResult(id, expressionID int64, result *float64, error *stri
 	if !s.Calculator.Exists(id) {
 		return customError.New(http.StatusNotFound, fmt.Errorf("Service.SerResult: task not found"))
 	}
-	s.Calculator.RecieveResult(task)
+	s.Calculator.ReceiveResult(task)
 	return nil
 }
 func (s *Service) GetTask() (*models.Task, *customError.CustomError) {

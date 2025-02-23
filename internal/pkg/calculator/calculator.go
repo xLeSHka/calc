@@ -89,7 +89,7 @@ func (c *Calculator) SendTask(taskID, expressionID, taskTime int64, arg1, arg2 f
 	c.TasksCh <- taskID
 	return res, err
 }
-func (c *Calculator) RecieveResult(task *models.Task) {
+func (c *Calculator) ReceiveResult(task *models.Task) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 	t, _ := c.Tasks[task.ID]
