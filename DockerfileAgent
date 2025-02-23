@@ -1,0 +1,17 @@
+FROM golang:1.24-alpine3.21 AS builder
+RUN apk --no-cache add ca-certificates gcc g++ libc-dev
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
+
+COPY . .
+RUN go build -o calc_service ./cmd/agent/agent.go
+
+FROM alpine:3.21
+
+WORKDIR /app
+COPY migrations migrations
+COPY --from=builder /app/calc_service ./
+
+CMD ["./calc_service"]

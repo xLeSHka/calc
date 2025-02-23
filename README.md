@@ -23,7 +23,7 @@ function = log(a,x) | sqrt(a)
  ```cmd 
 git clone https://github.com/xLeSHka/calc.git
 ```
-2. Установите docker [тык чтобы перейти на офф сайт](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
+2. Установите docker ![тык чтобы перейти на офф сайт](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
 3. Установите переменные окружения в файле `config.env`
 4. Запустите в терминале c **запущенным `Docker Desktop`**
 ```bash 
