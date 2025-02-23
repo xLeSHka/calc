@@ -20,7 +20,7 @@ function = log(a,x) | sqrt(a)
 **Unary минус и число нужно выделять в скобки, если минус не стоит после скобки**. Напремер в выражении `12+-3` нужно сделать `12+(-3)`, а в `sqrt(-64)` не нужно писать еще одни скобки. `log(a,x)` представляет из себя `log10(a)`/`log10(x)` то есть `loga(x)`. `sqrt(a)` это и есть корень квадратный из а, думаю тут объяснять не нужно. На этом все, мне было лень добавлять больше функций :0
 ## **Инструкция по запуску**
 1. Клонируйте репозиторий
- ```cmd 
+ ```cmd x
 git clone https://github.com/xLeSHka/calc.git
 ```
 2. Установите docker ![тык чтобы перейти на офф сайт](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
@@ -50,25 +50,25 @@ curl -X 'POST' -w "%{http_code}"\
 }'
 ```
 |Expression|Status|Status after solved|Result|
-|2+2*2|201|Solved|6|
-|log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)|201|Solved|5.43311|
-|log(sqrt(4),sqrt(64))|201|Solved|3|
-|log(sqrt(4),sqrt(64))^sqrt(81)*(-1)|201|Solved|-19683|
-|1-1)*log(sqrt(4),sqrt(64))|201|Unprocessable expression|-|
-|log(sqrt(4),sqrt(64))/0|201|Unprocessable expression|-|
-|log(-2,8|201|Unprocessable expression|-|
-|log(1,8)|201|Unprocessable expression|-|
-|log(16,(-1))|201|Unprocessable expression|-|
-|sqrt(50-50-50)|201|Unprocessable expression|-|
-|log(sqrt(4),sqrt(64))^sqrt(81)*-1|422|-|-|
-|log(sqrt(4),sqrt(64)|422|-|-|
-|2*2*|422|-|-|
-||422|-|-|
-|1+1*|422|-|-|
-|2+2**2|422|-|-|
-|((2+2-*(2|422|-|-|
-|2+2)-2|422|-|-|
-|0&0|422|-|-|
+|`2+2*2`|`201`|`Solved`|`6`|
+|`log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)`|`201`|`Solved`|`5.43311`|
+|`log(sqrt(4),sqrt(64))`|`201`|`Solved`|`3|`
+|`log(sqrt(4),sqrt(64))^sqrt(81)*(-1)`|`201`|`Solved`|`-19683`|
+|`1-1)*log(sqrt(4),sqrt(64))`|`201`|`Unprocessable expression`|`-`|
+|`log(sqrt(4),sqrt(64))/0`|`201`|`Unprocessable expression`|`-`|
+|`log(-2,8`|`201`|`Unprocessable expression`|`-`|
+|`log(1,8)`|`201`|`Unprocessable expression`|`-`|
+|`log(16,(-1))`|`201`|`Unprocessable expression`|`-`|
+|`sqrt(50-50-50`)|`201`|`Unprocessable expression`|`-`|
+|`log(sqrt(4),sqrt(64))^sqrt(81)*-1`|`422`|`-`|`-`|
+|`log(sqrt(4),sqrt(64)`|`422`|`-`|`-`|
+|`2*2*`|`422`|`-`|`-`|
+|```|`422`|`-`|`-`|
+|`1+1`*|`422`|`-`|`-`|
+|`2+2**2`|`422`|`-`|`-`|
+|`((2+2-*(2`|`422`|`-`|`-`|
+|`2+2)-2`|`422`|`-`|`-`|
+|`0&0`|`422`|`-`|`-`|
 ### Swagger-UI
 Если вы подняли этот сервер с `docker`, можно использовать [swagger-ui](http://localhost:8085/), там будет удобный интерфейс для создания своих запросов. 
 ### Postman
