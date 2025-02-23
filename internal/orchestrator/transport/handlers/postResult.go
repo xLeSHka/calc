@@ -16,7 +16,7 @@ func (r *Router) PostResult(c *gin.Context) {
 		c.Abort()
 		return
 	}
-	cErr := r.service.SetResult(*req.ID, *req.ExpressionID, *req.Result)
+	cErr := r.service.SetResult(*req.ID, *req.ExpressionID, req.Result, req.Error)
 	if cErr != nil {
 		r.Log.Error("PostResult: SetResult", zap.Error(cErr))
 		cErr.SendError(c)

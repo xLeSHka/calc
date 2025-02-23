@@ -63,23 +63,23 @@ func (s *Service) CreateExpression(expression string) (int64, *customError.Custo
 	go s.Calculator.Calc(*expressionNT, id)
 	return id, nil
 }
-func (s *Service) SetResult(id, expressionID int64, result float64) *customError.CustomError {
+func (s *Service) SetResult(id, expressionID int64, result *float64, error *string) *customError.CustomError {
 	task := &models.Task{
 		ID:           id,
 		ExpressionID: expressionID,
-		Result:       &result,
+		Result:       result,
+		Error:        error,
 	}
-	s.Calculator.Results <- task
+	if !s.Calculator.Exists(id) {
+		return customError.New(http.StatusNotFound, fmt.Errorf("Service.SerResult: task not found"))
+	}
+	s.Calculator.RecieveResult(task)
 	return nil
 }
 func (s *Service) GetTask() (*models.Task, *customError.CustomError) {
-	select {
-	case task, ok := <-s.Calculator.Tasks:
-		if !ok {
-			return nil, customError.New(http.StatusInternalServerError, fmt.Errorf("Service.GetTask: task channel closed"))
-		}
-		return task, nil
-	default:
-		return nil, customError.New(http.StatusNotFound, fmt.Errorf("Service.GetTask: task not found"))
+	task, cErr := s.Calculator.GetTask()
+	if cErr != nil {
+		return nil, cErr
 	}
+	return task, nil
 }

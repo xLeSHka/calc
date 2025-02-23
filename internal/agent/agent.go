@@ -26,9 +26,10 @@ type Agent struct {
 	URL            string
 }
 type PostResult struct {
-	ID           int64   `json:"id"`
-	ExpressionID int64   `json:"expression_id"`
-	Result       float64 `json:"result"`
+	ID           int64    `json:"id"`
+	ExpressionID int64    `json:"expression_id"`
+	Result       *float64 `json:"result,omitempty"`
+	Error        *string  `json:"error,omitempty"`
 }
 
 func (a *Agent) Recieve() {
@@ -66,7 +67,9 @@ func (a *Agent) Recieve() {
 	}
 }
 func (a *Agent) Send() {
-	client := http.DefaultClient
+	client := http.Client{
+		Timeout: time.Second * 5,
+	}
 	for {
 		select {
 		case <-a.Shotdown:
@@ -79,23 +82,35 @@ func (a *Agent) Send() {
 					s := PostResult{
 						ID:           task.ID,
 						ExpressionID: task.ExpressionID,
-						Result:       *task.Result,
+						Result:       task.Result,
+						Error:        task.Error,
 					}
 					jsonData, err := json.Marshal(s)
 					if err != nil {
 						a.Log.Error("Agent Marshaling task failed", zap.Error(err), zap.Any("task", task))
 						continue
 					}
-					req, _ := http.NewRequest(http.MethodPost, a.URL, bytes.NewBuffer(jsonData))
-					resp, err := client.Do(req)
-					if err != nil {
-						a.Log.Error("Agent Request failed", zap.Error(err))
-						continue
+					sended := false
+					for i := 0; i < 3; i++ {
+						req, _ := http.NewRequest(http.MethodPost, a.URL, bytes.NewBuffer(jsonData))
+						resp, err := client.Do(req)
+						if err != nil {
+							a.Log.Error("Agent Request failed", zap.Error(err))
+							time.Sleep(1 * time.Second)
+							continue
+						}
+						if resp.StatusCode != http.StatusOK {
+							a.Log.Error("Agent failed send result", zap.Any("task", task))
+							break
+						}
+						sended = true
+						break
 					}
-					if resp.StatusCode != http.StatusOK {
-						a.Log.Error("Agent failed send result", zap.Any("task", task))
+					if sended {
+						a.Log.Info("Agent result send", zap.Any("task", task))
+					} else {
+						a.Log.Info("Agent failed send result", zap.Any("task", task))
 					}
-					a.Log.Info("Agent result send", zap.Any("task", task))
 				default:
 					return
 				}
@@ -107,23 +122,35 @@ func (a *Agent) Send() {
 			s := PostResult{
 				ID:           task.ID,
 				ExpressionID: task.ExpressionID,
-				Result:       *task.Result,
+				Result:       task.Result,
+				Error:        task.Error,
 			}
 			jsonData, err := json.Marshal(s)
 			if err != nil {
 				a.Log.Error("Agent Marshaling task failed", zap.Error(err), zap.Any("task", task))
 				continue
 			}
-			req, _ := http.NewRequest(http.MethodPost, a.URL, bytes.NewBuffer(jsonData))
-			resp, err := client.Do(req)
-			if err != nil {
-				a.Log.Error("Agent Request failed", zap.Error(err))
-				continue
+			sended := false
+			for i := 0; i < 3; i++ {
+				req, _ := http.NewRequest(http.MethodPost, a.URL, bytes.NewBuffer(jsonData))
+				resp, err := client.Do(req)
+				if err != nil {
+					a.Log.Error("Agent Request failed", zap.Error(err))
+					time.Sleep(1 * time.Second)
+					continue
+				}
+				if resp.StatusCode != http.StatusOK {
+					a.Log.Error("Agent failed send result", zap.Any("task", task))
+					break
+				}
+				sended = true
+				break
 			}
-			if resp.StatusCode != http.StatusOK {
-				a.Log.Error("Agent failed send result", zap.Any("task", task))
+			if sended {
+				a.Log.Info("Agent result send", zap.Any("task", task))
+			} else {
+				a.Log.Info("Agent failed send result", zap.Any("task", task))
 			}
-			a.Log.Info("Agent result send", zap.Any("task", task))
 		}
 	}
 
@@ -179,11 +206,16 @@ func (a *Agent) Worker() {
 			}
 			a.Results <- t
 		case models.Division:
-			res := j.Arg1 / j.Arg2
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+			}
+			if j.Arg2 == 0 {
+				errMsg := ErrDivisionByZero.Error()
+				t.Error = &errMsg
+			} else {
+				res := j.Arg1 / j.Arg2
+				t.Result = &res
 			}
 			a.Results <- t
 		case models.Exponentiation:
@@ -203,19 +235,32 @@ func (a *Agent) Worker() {
 			}
 			a.Results <- t
 		case models.Logarithm:
-			res := math.Log(j.Arg2) / math.Log(j.Arg1)
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+			}
+			if j.Arg1 <= 0 || j.Arg1 == 1 {
+				errMsg := ErrLogNotDefinedFor.Error()
+				t.Error = &errMsg
+			} else if j.Arg2 <= 0.0 {
+				errMsg := ErrLogOutOfFuncDomain.Error()
+				t.Error = &errMsg
+			} else {
+				res := math.Log(j.Arg2) / math.Log(j.Arg1)
+				t.Result = &res
 			}
 			a.Results <- t
 		case models.SquareRoot:
-			res := math.Sqrt(j.Arg1)
 			t := models.Task{
 				ID:           j.ID,
 				ExpressionID: j.ExpressionID,
-				Result:       &res,
+			}
+			if j.Arg1 < 0 {
+				errMsg := ErrSqrtOutOfDomain.Error()
+				t.Error = &errMsg
+			} else {
+				res := math.Sqrt(j.Arg1)
+				t.Result = &res
 			}
 			a.Results <- t
 		}
@@ -223,8 +268,8 @@ func (a *Agent) Worker() {
 }
 func New(config config2.Config, lc fx.Lifecycle, log *zap.Logger) *Agent {
 	agent := &Agent{
-		Jobs:           make(chan models.Task, 50),
-		Results:        make(chan models.Task, 50),
+		Jobs:           make(chan models.Task, 100),
+		Results:        make(chan models.Task, 100),
 		ComputingPower: config.ComputingPower,
 		Wg:             &sync.WaitGroup{},
 		Log:            log,

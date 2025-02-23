@@ -292,10 +292,13 @@ components:
           example: 1
         result:
           type: number
-          description: Результат выполнения операции
+          description: Результат выполнения операции если она выполнима
           format: double
           example: 0.5
+        error:
+          type: string
+          description: Сообщение ошибки если операция не выполнима
+          example: Division by zero
       required:
         - id
         - expression_id
-        - result
