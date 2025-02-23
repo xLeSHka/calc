@@ -315,21 +315,48 @@ func solveExpr() {
 		logger.Info("", zap.Int64("id", j.ID), zap.Int64("expression id", j.ExpressionID))
 		switch j.Operation {
 		case models.Addition:
-			Service.SetResult(j.ID, j.ExpressionID, j.Arg1+j.Arg2)
+			res := j.Arg1 + j.Arg2
+			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
 		case models.Subtraction:
-			Service.SetResult(j.ID, j.ExpressionID, j.Arg1-j.Arg2)
+			res := j.Arg1 - j.Arg2
+			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
 		case models.Multiplication:
-			Service.SetResult(j.ID, j.ExpressionID, j.Arg1*j.Arg2)
+			res := j.Arg1 * j.Arg2
+			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
 		case models.Division:
-			Service.SetResult(j.ID, j.ExpressionID, j.Arg1/j.Arg2)
+			if j.Arg2 == 0 {
+				err := "Division by zero"
+				Service.SetResult(j.ID, j.ExpressionID, nil, &err)
+			} else {
+				res := j.Arg1 / j.Arg2
+				Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+
+			}
 		case models.Exponentiation:
-			Service.SetResult(j.ID, j.ExpressionID, math.Pow(j.Arg1, j.Arg2))
+			res := math.Pow(j.Arg1, j.Arg2)
+			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
 		case models.UnaryMinus:
-			Service.SetResult(j.ID, j.ExpressionID, -j.Arg1)
+			res := -j.Arg1
+			Service.SetResult(j.ID, j.ExpressionID, &res, nil)
 		case models.Logarithm:
-			Service.SetResult(j.ID, j.ExpressionID, math.Log(j.Arg2)/math.Log(j.Arg1))
+			if j.Arg1 <= 0 || j.Arg1 == 1 {
+				errMsg := "log not defined"
+				Service.SetResult(j.ID, j.ExpressionID, nil, &errMsg)
+			} else if j.Arg2 <= 0.0 {
+				errMsg := "log out of domain"
+				Service.SetResult(j.ID, j.ExpressionID, nil, &errMsg)
+			} else {
+				res := math.Log(j.Arg2) / math.Log(j.Arg1)
+				Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+			}
 		case models.SquareRoot:
-			Service.SetResult(j.ID, j.ExpressionID, math.Sqrt(j.Arg1))
+			if j.Arg1 < 0 {
+				errMsg := "negative square"
+				Service.SetResult(j.ID, j.ExpressionID, nil, &errMsg)
+			} else {
+				res := math.Sqrt(j.Arg1)
+				Service.SetResult(j.ID, j.ExpressionID, &res, nil)
+			}
 		}
 	}
 }
@@ -534,13 +561,16 @@ func TestPostTask(t *testing.T) {
 			expectedCode: http.StatusOK,
 		},
 	}
+	for i := 0; i < 10; i++ {
+		solveExpr()
+		time.Sleep(100 * time.Millisecond)
+	}
 	Service.CreateExpression("2+2")
 	time.Sleep(100 * time.Millisecond)
 	task, _ := Service.GetTask()
 	tests[0].ToPost.ID = task.ID
 	tests[0].ToPost.ExpressionID = task.ExpressionID
-	Service.SetResult(task.ID, task.ExpressionID, 4)
-	time.Sleep(100 * time.Millisecond)
+
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			jsonData, err := json.Marshal(test.ToPost)
@@ -554,6 +584,7 @@ func TestPostTask(t *testing.T) {
 				assert.Nil(t, err)
 			}()
 			assert.Equal(t, test.expectedCode, w.Code)
+			time.Sleep(100 * time.Millisecond)
 			var expression models.Expression
 			result := db.Model(&models.Expression{}).Where("id = ?", test.ToPost.ExpressionID).First(&expression)
 			assert.Nil(t, result.Error)

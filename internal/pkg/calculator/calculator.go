@@ -2,23 +2,33 @@ package calculator
 
 import (
 	"context"
+	"fmt"
 	"github.com/xLeSHka/calc/internal/models"
 	"github.com/xLeSHka/calc/internal/orchestrator/repository"
 	"github.com/xLeSHka/calc/internal/pkg/cache"
 	"github.com/xLeSHka/calc/internal/pkg/counter"
+	"github.com/xLeSHka/calc/internal/pkg/customError"
 	"github.com/xLeSHka/calc/internal/pkg/token"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
+	"net/http"
 	"strconv"
+	"sync"
 )
 
+type Task struct {
+	Task   *models.Task
+	Result chan float64
+	Error  chan error
+}
 type Calculator struct {
-	Tasks   chan *models.Task
-	Results chan *models.Task
+	Tasks   map[int64]*Task
+	TasksCh chan int64
 	Log     *zap.Logger
 	Repo    repository.Repo
 	Cache   *cache.Cache
 	Counter *counter.Counter
+	mu      *sync.Mutex
 }
 
 func New(
@@ -29,14 +39,37 @@ func New(
 ) *Calculator {
 	return &Calculator{
 		Log:     log,
-		Tasks:   make(chan *models.Task, 50),
-		Results: make(chan *models.Task, 50),
+		Tasks:   make(map[int64]*Task),
+		TasksCh: make(chan int64, 200),
+		mu:      &sync.Mutex{},
 		Repo:    repo,
 		Cache:   times,
 		Counter: counter,
 	}
 }
-func (c *Calculator) SendTask(taskID, expressionID, taskTime int64, arg1, arg2 float64, operation models.Operation) {
+func (c *Calculator) Exists(taskID int64) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	_, ok := c.Tasks[taskID]
+	return ok
+}
+func (c *Calculator) GetTask() (*models.Task, *customError.CustomError) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	select {
+	case id, ok := <-c.TasksCh:
+		if !ok {
+			return nil, customError.New(http.StatusInternalServerError, fmt.Errorf("Calculator.GetTask: task channel closed"))
+		}
+		task, _ := c.Tasks[id]
+		return task.Task, nil
+	default:
+		return nil, customError.New(http.StatusNotFound, fmt.Errorf("Calculator.GetTask: task not found"))
+	}
+}
+func (c *Calculator) SendTask(taskID, expressionID, taskTime int64, arg1, arg2 float64, operation models.Operation) (chan float64, chan error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
 	task := &models.Task{
 		ID:            taskID,
 		ExpressionID:  expressionID,
@@ -45,7 +78,29 @@ func (c *Calculator) SendTask(taskID, expressionID, taskTime int64, arg1, arg2 f
 		Operation:     operation,
 		OperationTime: taskTime,
 	}
-	c.Tasks <- task
+	res := make(chan float64)
+	err := make(chan error)
+	t := &Task{
+		Task:   task,
+		Result: res,
+		Error:  err,
+	}
+	c.Tasks[taskID] = t
+	c.TasksCh <- taskID
+	return res, err
+}
+func (c *Calculator) RecieveResult(task *models.Task) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	t, _ := c.Tasks[task.ID]
+	defer close(t.Result)
+	defer close(t.Error)
+	if task.Result != nil {
+		t.Result <- *task.Result
+
+	} else {
+		t.Error <- fmt.Errorf("Failed calculate, error: %s", *task.Error)
+	}
 }
 func (c *Calculator) calculate(node *token.Node, expressionID int64, ctx context.Context) error {
 	if node == nil {
@@ -88,71 +143,62 @@ func (c *Calculator) calculate(node *token.Node, expressionID int64, ctx context
 			if node.Token.Token == "+" {
 				taskId := c.Counter.Int()
 				taskTime := c.Cache.AddictionTime().Milliseconds()
-				c.SendTask(taskId, expressionID, taskTime, a, b, models.Addition)
-				for {
-					t := <-c.Results
-					if t.ID != taskId && t.ExpressionID != expressionID {
-						c.Results <- t
-						continue
-					}
-					node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-					break
+				resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, b, models.Addition)
+
+				select {
+				case res := <-resCh:
+					node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+				case err = <-errCh:
+					ctx.Done()
+					return err
 				}
 			} else if node.Token.Token == "-" {
 				taskId := c.Counter.Int()
 				taskTime := c.Cache.SubtractionTime().Milliseconds()
-				c.SendTask(taskId, expressionID, taskTime, a, b, models.Subtraction)
-				for {
-					t := <-c.Results
-					if t.ID != taskId && t.ExpressionID != expressionID {
-						c.Results <- t
-						continue
-					}
-					node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-					break
+				resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, b, models.Subtraction)
+
+				select {
+				case res := <-resCh:
+					node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+				case err = <-errCh:
+					ctx.Done()
+					return err
 				}
 			} else if node.Token.Token == "*" {
 				taskId := c.Counter.Int()
 				taskTime := c.Cache.MultiplicationTime().Milliseconds()
-				c.SendTask(taskId, expressionID, taskTime, a, b, models.Multiplication)
-				for {
-					t := <-c.Results
-					if t.ID != taskId && t.ExpressionID != expressionID {
-						c.Results <- t
-						continue
-					}
-					node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-					break
+				resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, b, models.Multiplication)
+
+				select {
+				case res := <-resCh:
+					node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+				case err = <-errCh:
+					ctx.Done()
+					return err
 				}
 			} else if node.Token.Token == "/" {
-				if b == 0 {
-					ctx.Done()
-					return ErrDivisionByZero
-				}
 				taskId := c.Counter.Int()
 				taskTime := c.Cache.DivisionTime().Milliseconds()
-				c.SendTask(taskId, expressionID, taskTime, a, b, models.Division)
-				for {
-					t := <-c.Results
-					if t.ID != taskId && t.ExpressionID != expressionID {
-						c.Results <- t
-						continue
-					}
-					node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-					break
+				resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, b, models.Division)
+
+				select {
+				case res := <-resCh:
+					node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+				case err = <-errCh:
+					ctx.Done()
+					return err
 				}
 			} else if node.Token.Token == "^" {
 				taskId := c.Counter.Int()
 				taskTime := c.Cache.ExponentiationTime().Milliseconds()
-				c.SendTask(taskId, expressionID, taskTime, a, b, models.Exponentiation)
-				for {
-					t := <-c.Results
-					if t.ID != taskId && t.ExpressionID != expressionID {
-						c.Results <- t
-						continue
-					}
-					node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-					break
+				resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, b, models.Exponentiation)
+
+				select {
+				case res := <-resCh:
+					node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+				case err = <-errCh:
+					ctx.Done()
+					return err
 				}
 			} else {
 				ctx.Done()
@@ -168,15 +214,14 @@ func (c *Calculator) calculate(node *token.Node, expressionID int64, ctx context
 				}
 				taskId := c.Counter.Int()
 				taskTime := c.Cache.UnaryMinusTime().Milliseconds()
-				c.SendTask(taskId, expressionID, taskTime, a, 0.0, models.UnaryMinus)
-				for {
-					t := <-c.Results
-					if t.ID != taskId && t.ExpressionID != expressionID {
-						c.Results <- t
-						continue
-					}
-					node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-					break
+				resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, 0.0, models.UnaryMinus)
+
+				select {
+				case res := <-resCh:
+					node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+				case err = <-errCh:
+					ctx.Done()
+					return err
 				}
 			} else {
 				ctx.Done()
@@ -195,27 +240,17 @@ func (c *Calculator) calculate(node *token.Node, expressionID int64, ctx context
 				ctx.Done()
 				return err
 			}
-			if a <= 0 || a == 1 {
-				ctx.Done()
-				return ErrLogNotDefinedFor
-			}
-			if b <= 0.0 {
-				ctx.Done()
-				return ErrLogOutOfFuncDomain
-			}
 			taskId := c.Counter.Int()
 			taskTime := c.Cache.LogarithmTime().Milliseconds()
-			c.SendTask(taskId, expressionID, taskTime, a, b, models.Logarithm)
-			for {
-				t := <-c.Results
-				if t.ID != taskId && t.ExpressionID != expressionID {
-					c.Results <- t
-					continue
-				}
-				node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-				break
+			resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, b, models.Logarithm)
+
+			select {
+			case res := <-resCh:
+				node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+			case err = <-errCh:
+				ctx.Done()
+				return err
 			}
-			//node.Token.Token = strconv.FormatFloat(, 'f', 5, 64)
 		}
 		if node.Token.Token == "sqrt" {
 			a, err := strconv.ParseFloat(node.Left.Token.Token, 64)
@@ -223,30 +258,23 @@ func (c *Calculator) calculate(node *token.Node, expressionID int64, ctx context
 				ctx.Done()
 				return err
 			}
-			if a < 0.0 {
-				ctx.Done()
-				return ErrSqrtOutOfDomain
-			}
 			taskId := c.Counter.Int()
 			taskTime := c.Cache.SquareRootTime().Milliseconds()
-			c.SendTask(taskId, expressionID, taskTime, a, 0.0, models.SquareRoot)
-			for {
-				t := <-c.Results
-				if t.ID != taskId && t.ExpressionID != expressionID {
-					c.Results <- t
-					continue
-				}
-				node.Token.Token = strconv.FormatFloat(*t.Result, 'f', 5, 64)
-				break
+			resCh, errCh := c.SendTask(taskId, expressionID, taskTime, a, 0.0, models.SquareRoot)
+
+			select {
+			case res := <-resCh:
+				node.Token.Token = strconv.FormatFloat(res, 'f', 5, 64)
+			case err = <-errCh:
+				ctx.Done()
+				return err
 			}
-			//node.Token.Token = strconv.FormatFloat(math.Sqrt(a), 'f', 5, 64)
 		}
 	}
 	return nil
 }
 
 func (c *Calculator) Calc(expressionNT token.Node, expressionID int64) {
-
 	expr := &models.Expression{
 		ID:     expressionID,
 		Status: "In process",

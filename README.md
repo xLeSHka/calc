@@ -23,24 +23,48 @@ function = log(a,x) | sqrt(a)
  ```cmd 
 git clone https://github.com/xLeSHka/calc.git
 ```
-2. Установите docker ![тык чтобы перейти на офф сайт](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
+2. Установите docker [тык чтобы перейти на офф сайт](https://docs.docker.com/get-started/introduction/get-docker-desktop/)
 3. Установите переменные окружения в файле `config.env`
 4. Запустите в терминале c **запущенным `Docker Desktop`**
 ```bash 
 docker-compose up -d
 ```
+## Устройство работы сервиса
+### Эндпоинты
+- Создание выражения
+![Создание выражения](./readme/createExpression.jpg)
+- Получение выражения
+![Получение выражения](./readme/getExpression.jpg)
+- Получение выражений с пагинацией
+![Получение выражений с пагинацией](./readme/getExpressions.jpg)
+- Получение задачи
+![Получение задачи](./readme/getTask.jpg)
+- Отправка результата вычисления
+![Получение задачи](./readme/sendTask.jpg)
+### При парсинге выражения составляется Node Tree
+![Node Tree](./readme/nodeTree.jpg)
+Пример
+![Пример](./readme/example.jpg)
+### Диаграмма вычисления выражения 
+![Диаграмма вычисления выражения](./readme/solveLogic.jpg)
+Диаграмма функции calculate
+![Диаграмма функции calculate](./readme/calculate.jpg)
 ## Тестирование сервера
-Тесты прогоняются автоматически при запуске, но можно запустить их и самому командой
+Тесты прогоняются автоматически при запуске, но можно запустить их и самому командой **после запуска через `docker-compose up -d`, так как тестам нужно подключение к БД**
 ```bash
-go test ./e2e_1_test.go -timeout 120s -race -v -cover -coverpkg ./... -coverprofile coverage.out
+go test ./internal/tests/e2e_test.go -timeout 120s -v -cover -coverpkg ./... -coverprofile coverage.out
 ```
 Создастся файл coverage.out который нужно преобразовать командой и открыть в браузере, после чего будет доступна подробная информация по покрытию кода тестами
 ```bash
 go tool cover -html=coverage.out
 ```
+## Запросы
+### Swagger-UI
+Можно использовать [swagger-ui](http://localhost:8085/), там будет спецификация и возможность отправлять запросы
 ### Curl запросы
 **Запросы вводить нужно не в `cmd` или `power shell`, а в `Git Bash`, если вы скачивали `Git` себе на компьютер, то он у вас должен быть. Так как в `cmd` и `power shell` нужно экранировать например `^`. В итоге читать и писать выражения становится в разы труднее**  
-#### Шаблон запроса на создание выражения
+#### Создать выражение
+Шаблон запроса на создание выражения, вставьте в него выражение и отправьте в `Git Bash`
 ```bash
 curl -X 'POST' -w "%{http_code}"\
 'http://localhost:9090/api/v1/calculate' \
@@ -49,32 +73,59 @@ curl -X 'POST' -w "%{http_code}"\
   "expression": "<вставьте сюда выражение>"
 }'
 ```
-|Expression|Status|Status after solved|Result|
-|`2+2*2`|`201`|`Solved`|`6`|
-|`log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4)`|`201`|`Solved`|`5.43311`|
-|`log(sqrt(4),sqrt(64))`|`201`|`Solved`|`3|`
-|`log(sqrt(4),sqrt(64))^sqrt(81)*(-1)`|`201`|`Solved`|`-19683`|
-|`1-1)*log(sqrt(4),sqrt(64))`|`201`|`Unprocessable expression`|`-`|
-|`log(sqrt(4),sqrt(64))/0`|`201`|`Unprocessable expression`|`-`|
-|`log(-2,8`|`201`|`Unprocessable expression`|`-`|
-|`log(1,8)`|`201`|`Unprocessable expression`|`-`|
-|`log(16,(-1))`|`201`|`Unprocessable expression`|`-`|
-|`sqrt(50-50-50`)|`201`|`Unprocessable expression`|`-`|
-|`log(sqrt(4),sqrt(64))^sqrt(81)*-1`|`422`|`-`|`-`|
-|`log(sqrt(4),sqrt(64)`|`422`|`-`|`-`|
-|`2*2*`|`422`|`-`|`-`|
-|```|`422`|`-`|`-`|
-|`1+1`*|`422`|`-`|`-`|
-|`2+2**2`|`422`|`-`|`-`|
-|`((2+2-*(2`|`422`|`-`|`-`|
-|`2+2)-2`|`422`|`-`|`-`|
-|`0&0`|`422`|`-`|`-`|
-### Swagger-UI
-Если вы подняли этот сервер с `docker`, можно использовать [swagger-ui](http://localhost:8085/), там будет удобный интерфейс для создания своих запросов. 
-### Postman
-Так же можно использовать `Postman`. Если вы пользуетесь `VS Code`, то нужно просто зайти в `extention` в `VS Code`, ввести `Postman` и установить первое расширение из списка. Чтобы пользоваться `Postman` нужно в нем зарегистрироваться. После регистрации нужно зайти в свой аккаунт в расширении для `VS Code`. И все, можно создавать запросы нажатием на `NewHTTPRequest`. Потом выбрать метод, ввести `localhost:9090/api/v1/calculate` в поле `URL`. Если вы хотите проверить правильность вычислений то выбранный метод должен быть `POST` и  во вкладке `body` выбрать `raw`, а потом справа нажав на синюю стрелочку выбрать `json`. Туда нужно вставить струтуру
-```json
-{  
-    "expression":"ваше выражение"  
-}  
+|                 Expression                  | Status |   Status after solved    |  Result   |
+|:-------------------------------------------:|:------:|:------------------------:|:---------:|
+|                    2+2*2                    |  201   |          Solved          |     6     |
+| log(18,18)^(-9)/3.14*(-12-3)*3/10+2*sqrt(4) |  201   |          Solved          |  5.43311  |
+|            log(sqrt(4),sqrt(64))            |  201   |          Solved          |     3     |
+|     log(sqrt(4),sqrt(64))^sqrt(81)*(-1)     |  201   |          Solved          |  -19683   |
+|         1-1)*log(sqrt(4),sqrt(64))          |  201   | Unprocessable expression |     -     |
+|           log(sqrt(4),sqrt(64))/0           |  201   | Unprocessable expression |     -     |
+|                  log(-2,8                   |  201   | Unprocessable expression |     -     |
+|                  log(1,8)                   |  201   | Unprocessable expression |     -     |
+|                log(16,(-1))                 |  201   | Unprocessable expression |     -     |
+|               sqrt(50-50-50)                |  201   | Unprocessable expression |     -     |
+|      log(sqrt(4),sqrt(64))^sqrt(81)*-1      |  422   |            -             |     -     |
+|            log(sqrt(4),sqrt(64)             |  422   |            -             |     -     |
+|                    2*2*                     |  422   |            -             |     -     |
+|                                             |  422   |            -             |     -     |
+|                    1+1*                     |  422   |            -             |     -     |
+|                   2+2**2                    |  422   |            -             |     -     |
+|                  ((2+2-*(2                  |  422   |            -             |     -     |
+|                   2+2)-2                    |  422   |            -             |     -     |
+|                     0&0                     |  422   |            -             |     -     |
+#### Получить выражение с пагинацией
+Шаблон запроса. Вставьте в него данные и отправьте в `Git Bash`
+```bash
+curl -X 'GET' \
+  'http://localhost:9090/api/v1/expressions?size<вставьте размер 1 страницы>&page=<вставьте номер страницы, нумерация с 0>' \
+  -H 'accept: application/json'
+```
+#### Получить выражение с пагинацией
+Шаблон запроса. Вставьте вместо {id} id выражения и отправьте запрос в `Git Bash`
+```bash
+curl -X 'GET' \
+'http://localhost:9090/api/v1/expressions/{id}' \
+-H 'accept: application/json'
+```
+#### Получить задачу
+Отправьте запрос в `Git Bash`
+```bash
+curl -X 'GET' \
+  'http://localhost:9090/api/v1/internal/task' \
+  -H 'accept: application/json'
+```
+#### Отправить результат вычисления
+Шаблон запроса. Вставьте либо result, либо error и отправьте запрос в `Git Bash`
+```bash
+curl -X 'POST' \
+  'http://localhost:9090/api/v1/internal/task' \
+  -H 'accept: */*' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "id": 1,
+  "expression_id": 1,
+  "result": <вставьте число>,
+  "error": "<вставьте текст ошибки>"
+}'
 ```
