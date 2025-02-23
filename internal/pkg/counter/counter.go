@@ -3,29 +3,26 @@ package counter
 import "sync"
 
 type Counter struct {
-	expressionCounter int64
-	taskCounter       int64
-	mu                *sync.Mutex
+	counter int64
+	mu      *sync.Mutex
 }
 
 func New() *Counter {
 	return &Counter{
-		mu:                &sync.Mutex{},
-		expressionCounter: 0,
-		taskCounter:       0,
+		mu:      &sync.Mutex{},
+		counter: 1,
 	}
 }
-func (c *Counter) ExprInc() int64 {
+
+func (c *Counter) Int() int64 {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	cur := c.expressionCounter
-	c.expressionCounter++
+	cur := c.counter
+	c.counter++
 	return cur
 }
-func (c *Counter) TaskInc() int64 {
+func (c *Counter) Restart() {
 	c.mu.Lock()
 	defer c.mu.Unlock()
-	cur := c.taskCounter
-	c.taskCounter++
-	return cur
+	c.counter = 1
 }

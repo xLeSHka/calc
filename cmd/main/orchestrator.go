@@ -1,10 +1,12 @@
 package main
 
 import (
-	"github.com/xLeSHka/calc/app"
+	"github.com/xLeSHka/calc/app/orchestrator"
 	"go.uber.org/fx"
 )
 
 func main() {
-	fx.New(app.App).Run()
+	fx.New(
+		orchestrator.Orchestrator,
+	).Run()
 }

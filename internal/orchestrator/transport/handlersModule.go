@@ -1,8 +1,8 @@
 package transport
 
 import (
-	"github.com/xLeSHka/calc/internal/app/transport/handlers"
-	"github.com/xLeSHka/calc/internal/app/transport/routers"
+	"github.com/xLeSHka/calc/internal/orchestrator/transport/handlers"
+	"github.com/xLeSHka/calc/internal/orchestrator/transport/routers"
 	"go.uber.org/fx"
 )
 

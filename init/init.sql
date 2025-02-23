@@ -1,0 +1,2 @@
+CREATE DATABASE root;
+CREATE DATABASE testdatabase;

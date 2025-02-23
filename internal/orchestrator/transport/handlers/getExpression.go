@@ -27,6 +27,10 @@ func (r *Router) GetExpression(c *gin.Context) {
 	c.JSON(http.StatusOK, mapExpression(expr))
 }
 func mapExpression(expression *models.Expression) *GetExpressionResp {
+	var resp GetExpressionResp
+	resp.ID = expression.ID
+	resp.Status = expression.Status
+	
 	return &GetExpressionResp{
 		ID:     expression.ID,
 		Status: expression.Status,

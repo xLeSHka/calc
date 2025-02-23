@@ -28,6 +28,7 @@ func New(config config.Config) *Cache {
 		unaryMinusTime:     config.TimeUnaryMinus,
 		logarithmTime:      config.TimeLogarithm,
 		squareRootTime:     config.TimeSquareRoot,
+		mu:                 &sync.RWMutex{},
 	}
 }
 func (t *Cache) AddictionTime() time.Duration {

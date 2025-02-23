@@ -1,11 +1,15 @@
 package http
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/xLeSHka/calc/internal/pkg/config"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
+	"net/http"
+	"time"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -29,13 +33,31 @@ func New(config config.Config, lc fx.Lifecycle, log *zap.Logger) *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(CORSMiddleware())
+	srv := &http.Server{
+		Addr:    fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort),
+		Handler: r,
+	}
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			go r.Run(fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort))
+			go func() {
+				err := srv.ListenAndServe()
+				if err != nil && !errors.Is(err, http.ErrServerClosed) {
+					log.Error("server shutdown", zap.Error(err))
+				}
+			}()
 			log.Info("server started at address", zap.String("address", fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort)))
 			return nil
 		},
-		OnStop: nil,
+		OnStop: func(ctx context.Context) error {
+			ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
+			defer cancel()
+			if err := srv.Shutdown(ctx); err != nil {
+				log.Error("server shutdown", zap.Error(err))
+				return err
+			}
+			log.Error("server stopped")
+			return nil
+		},
 	})
 	return r
 }

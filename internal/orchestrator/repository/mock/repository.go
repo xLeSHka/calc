@@ -2,8 +2,8 @@ package mock
 
 import (
 	"cmp"
-	"github.com/xLeSHka/calc/internal/app/repository"
 	"github.com/xLeSHka/calc/internal/models"
+	"github.com/xLeSHka/calc/internal/orchestrator/repository"
 	"github.com/xLeSHka/calc/internal/pkg/counter"
 	"slices"
 	"sync"
@@ -56,7 +56,7 @@ func (r *Repository) GetExpressions(size, page int) ([]*models.Expression, int64
 	slices.SortFunc(keys, func(a, b int64) int {
 		return -cmp.Compare(a, b)
 	})
-	exprs := make([]*models.Expression, size)
+	exprs := make([]*models.Expression, 0, size)
 	for i := page * size; (i-page*size) < size && i < len(r.Expressions); i++ {
 		exprs = append(exprs, r.Expressions[keys[i]])
 	}

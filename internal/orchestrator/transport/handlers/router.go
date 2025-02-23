@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/xLeSHka/calc/internal/app/transport/routers"
+	"github.com/xLeSHka/calc/internal/orchestrator/transport/routers"
 	"go.uber.org/zap"
 )
 
@@ -14,11 +14,12 @@ type Router struct {
 func SetUpRouter(
 	routers *routers.Routers,
 	logger *zap.Logger,
-
+	service routers.Service,
 ) *Router {
 	router := &Router{
-		Router: routers,
-		Log:    logger,
+		Router:  routers,
+		Log:     logger,
+		service: service,
 	}
 	routers.Public.POST("/calculate", router.CreateExpression)
 	routers.Public.GET("/expressions", router.GetExpressions)

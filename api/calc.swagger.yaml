@@ -57,6 +57,17 @@ paths:
       summary: Получение выражений с пагинацией в порядке создания от новых к старым
       description: Возвращает список выражений и общее количество выражений
       operationId: getExpressions
+      parameters:
+        - in: query
+          name: size
+          schema:
+            type: integer
+          description: Количество элементов на странице.
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Номер страницы.
       responses:
         "200":
           description: Список выражений
@@ -93,15 +104,15 @@ paths:
           schema:
             type: number
             format: int64
+            minimum: 1
+            example: 1
       responses:
         "200":
           description: Список выражений
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/createExpressionResp'
+                $ref: '#/components/schemas/createExpressionResp'
         "404":
           description: Выражений не найдено
           content:
@@ -127,11 +138,42 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/createExpressionResp'
+                $ref: '#/components/schemas/getTask'
         "404":
           description: Выражений не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Внутренняя ошибка сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - Tasks
+      summary: Получает результат вычисления задачи
+      description:  Получает результат вычисления задачи
+      operationId: postTask
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/postResult'
+        required: true
+      responses:
+        "200":
+          description: Результат успешно записан
+        "404":
+          description: Задача или выражение не найдена
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "422":
+          description: Невалидные данные
           content:
             application/json:
               schema:
@@ -175,7 +217,8 @@ components:
           type: integer
           description: ID созданного выражения
           format: int64
-          example: 0
+          minimum: 1
+          example: 1
       required:
         - id
     getExpression:
@@ -185,7 +228,8 @@ components:
           type: integer
           description: ID выражения
           format: int64
-          example: 0
+          minimum: 1
+          example: 1
         status:
           type: string
           description: Статус выражания
@@ -205,7 +249,8 @@ components:
           type: integer
           description: ID выражения
           format: int64
-          example: 0
+          minimum: 1
+          example: 1
         arg1:
           type: number
           description: Первый аргумент операции
@@ -235,9 +280,16 @@ components:
       properties:
         id:
           type: integer
+          description: ID задачи
+          format: int64
+          minimum: 1
+          example: 1
+        expression_id:
+          type: integer
           description: ID выражения
           format: int64
-          example: 0
+          minimum: 1
+          example: 1
         result:
           type: number
           description: Результат выполнения операции
@@ -245,4 +297,5 @@ components:
           example: 0.5
       required:
         - id
+        - expression_id
         - result

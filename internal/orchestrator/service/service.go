@@ -3,8 +3,8 @@ package service
 import (
 	"errors"
 	"fmt"
-	"github.com/xLeSHka/calc/internal/app/repository"
 	"github.com/xLeSHka/calc/internal/models"
+	"github.com/xLeSHka/calc/internal/orchestrator/repository"
 	"github.com/xLeSHka/calc/internal/pkg/calculator"
 	"github.com/xLeSHka/calc/internal/pkg/customError"
 	"github.com/xLeSHka/calc/internal/pkg/token"
@@ -55,6 +55,7 @@ func (s *Service) CreateExpression(expression string) (int64, *customError.Custo
 	if err != nil {
 		return 0, customError.New(http.StatusUnprocessableEntity, fmt.Errorf("Service.CreateExpression: error: %w", err))
 	}
+
 	id, err := s.Repository.CreateExpression(expression)
 	if err != nil {
 		return 0, customError.New(http.StatusInternalServerError, fmt.Errorf("Service.CreateExpression: error: %w", err))

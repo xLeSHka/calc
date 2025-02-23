@@ -1,18 +1,80 @@
 services:
-  calc_service:
-    container_name: calc_service
-    build: 
+  tests:
+    container_name: my_test_containers
+    build:
       context: .
+      dockerfile: DockerfileTest
+    env_file:
+      - config.env
+    environment:
+      SERVER_HOST: 0.0.0.0
+      POSTGRES_DB: testdatabase
+    networks:
+      - test-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+  agent_service:
+    container_name: agent_service
+    build:
+      context: .
+      dockerfile: DockerfileAgent
+    env_file:
+      - config.env
+    networks:
+      - backend-network
+    depends_on:
+      orchestrator_service:
+        condition: service_started
+  orchestrator_service:
+    container_name: orchestrator_service
+    build:
+      context: .
+      dockerfile: DockerfileOrchestrator
     env_file:
       - config.env
     ports:
       - "9090:9090"
-#  swagger-ui:
-#    image: swaggerapi/swagger-ui
-#    container_name: swagger-ui
-#    ports:
-#      - "8085:8080"
-#    volumes:
-#      - ./api/calc.swagger.yaml:/usr/share/nginx/html/swagger/calc.swagger.yaml
-#    environment:
-#      API_URL: swagger/calc.swagger.yaml
+    depends_on:
+      postgres:
+        condition: service_healthy
+      tests:
+        condition: service_completed_successfully
+    networks:
+      - backend-network
+  postgres:
+    restart: on-failure
+    image: postgres:latest
+    container_name: postgres_container
+    env_file:
+      - config.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready","-U","root","-d","database" ]
+      interval: 5s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+    networks:
+      - backend-network
+      - test-network
+  swagger-ui:
+    image: swaggerapi/swagger-ui:latest
+    container_name: swagger-ui
+    ports:
+      - "8085:8080"
+    volumes:
+      - ./api/calc.swagger.yaml:/usr/share/nginx/html/swagger/calc.swagger.yaml
+    environment:
+      API_URL: swagger/calc.swagger.yaml
+    networks:
+      - backend-network
+volumes:
+  postgres_data:
+networks:
+  test-network:
+  backend-network:

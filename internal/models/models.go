@@ -9,7 +9,7 @@ const (
 	Multiplication
 	Exponentiation
 	UnaryMinus
-	Logariphm
+	Logarithm
 	SquareRoot
 )
 
@@ -25,11 +25,11 @@ func (_ Expression) TableName() string {
 }
 
 type Task struct {
-	ID            int64
-	ExpressionID  int64
-	Arg1          float64
-	Arg2          float64
-	Operation     Operation
-	OperationTime int64
-	Result        *float64
+	ID            int64     `json:"id"`
+	ExpressionID  int64     `json:"expression_id"`
+	Arg1          float64   `json:"arg1"`
+	Arg2          float64   `json:"arg2"`
+	Operation     Operation `json:"operation"`
+	OperationTime int64     `json:"operation_time"`
+	Result        *float64  `json:"result,omitempty"`
 }

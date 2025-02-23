@@ -1,34 +1,39 @@
-package app
+package orchestrator
 
 import (
-	"github.com/xLeSHka/calc/internal/app/repository"
-	"github.com/xLeSHka/calc/internal/app/repository/mock"
-	"github.com/xLeSHka/calc/internal/app/service"
-	"github.com/xLeSHka/calc/internal/app/transport"
-	"github.com/xLeSHka/calc/internal/app/transport/routers"
+	"github.com/xLeSHka/calc/internal/orchestrator/repository"
+	"github.com/xLeSHka/calc/internal/orchestrator/repository/db"
+	"github.com/xLeSHka/calc/internal/orchestrator/service"
+	"github.com/xLeSHka/calc/internal/orchestrator/transport"
+	"github.com/xLeSHka/calc/internal/orchestrator/transport/routers"
 	"github.com/xLeSHka/calc/internal/pkg/cache"
 	"github.com/xLeSHka/calc/internal/pkg/calculator"
 	"github.com/xLeSHka/calc/internal/pkg/config"
 	"github.com/xLeSHka/calc/internal/pkg/counter"
 	"github.com/xLeSHka/calc/internal/pkg/http"
 	"github.com/xLeSHka/calc/internal/pkg/logger"
+	"github.com/xLeSHka/calc/internal/pkg/postgres"
 	"go.uber.org/fx"
 )
 
-var App = fx.Options(
+var Orchestrator = fx.Options(
 	fx.Provide(
 		config.New,
 		logger.New,
 		http.New,
 		counter.New,
 		cache.New,
-		fx.Annotate(mock.New,
+		postgres.New,
+		fx.Annotate(db.New,
 			fx.As(new(repository.Repo)),
 		),
 		calculator.New,
 		fx.Annotate(service.New,
 			fx.As(new(routers.Service)),
 		),
+	),
+	fx.Invoke(
+		postgres.MigrateDB,
 	),
 	transport.HttpModule,
 )

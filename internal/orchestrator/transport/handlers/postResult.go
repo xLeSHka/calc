@@ -9,14 +9,14 @@ import (
 )
 
 func (r *Router) PostResult(c *gin.Context) {
-	var req GetResultReq
+	var req PostResult
 	if err := c.ShouldBindJSON(&req); err != nil {
 		r.Log.Error("PostResult: Failed bind body", zap.Error(err))
 		customError.New(http.StatusBadRequest, fmt.Errorf("PostResult: error: %w", err)).SendError(c)
 		c.Abort()
 		return
 	}
-	cErr := r.service.SetResult(*req.ID, *req.Result)
+	cErr := r.service.SetResult(*req.ID, *req.ExpressionID, *req.Result)
 	if cErr != nil {
 		r.Log.Error("PostResult: SetResult", zap.Error(cErr))
 		cErr.SendError(c)
