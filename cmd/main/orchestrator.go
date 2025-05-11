@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/xLeSHka/calc/app/orchestrator"
+	"github.com/xLeSHka/calc/internal/app/orchestrator"
 	"go.uber.org/fx"
 )
 

@@ -1,5 +1,7 @@
 package models
 
+import "github.com/google/uuid"
+
 type Operation byte
 
 const (
@@ -13,10 +15,16 @@ const (
 	SquareRoot
 )
 
+type User struct {
+	ID       uuid.UUID `gorm:"type:uuid;primaryKey" `
+	Login    string    `gorm:"unique;not null"`
+	Password []byte    `gorm:"not null"`
+}
 type Expression struct {
-	ID         int64  `gorm:"type:serial;primary_key"`
-	Expression string `gorm:"not null"`
-	Status     string `gorm:"not null"`
+	ID         int64     `gorm:"type:serial;primary_key"`
+	UserID     uuid.UUID `gorm:"type:uuid;not null"`
+	Expression string    `gorm:"not null"`
+	Status     string    `gorm:"not null"`
 	Result     *float64
 }
 

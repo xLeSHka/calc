@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/xLeSHka/calc/app/agent"
 	agent2 "github.com/xLeSHka/calc/internal/agent"
+	"github.com/xLeSHka/calc/internal/app/agent"
 	"go.uber.org/fx"
 )
 

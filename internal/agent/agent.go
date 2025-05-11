@@ -1,17 +1,17 @@
 package agent
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"github.com/xLeSHka/calc/internal/models"
+	proto "github.com/xLeSHka/calc/internal/pkg/api"
 	config2 "github.com/xLeSHka/calc/internal/pkg/config"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"io/ioutil"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"math"
-	"net/http"
 	"sync"
 	"time"
 )
@@ -23,7 +23,8 @@ type Agent struct {
 	Wg             *sync.WaitGroup
 	Log            *zap.Logger
 	Shutdown       chan struct{}
-	URL            string
+	Client         proto.CalcServiceClient
+	Conn           *grpc.ClientConn
 }
 type PostResult struct {
 	ID           int64   `json:"id"`
@@ -34,32 +35,24 @@ type PostResult struct {
 
 func (a *Agent) Recieve() {
 
-	client := http.DefaultClient
 	for {
 		select {
 		case <-a.Shutdown:
 			return
 		default:
-			req, _ := http.NewRequest(http.MethodGet, a.URL, nil)
-			resp, err := client.Do(req)
+			t, err := a.Client.GetTask(context.TODO(), &emptypb.Empty{})
 			if err != nil {
 				a.Log.Error("Agent Request failed", zap.Error(err))
 				time.Sleep(1 * time.Second)
 				continue
 			}
-			if resp.StatusCode != http.StatusOK {
-				time.Sleep(1 * time.Second)
-				continue
-			}
-			body, err := ioutil.ReadAll(resp.Body)
-			resp.Body.Close()
-			if err != nil {
-				a.Log.Error("Agent Reading body failed", zap.Error(err))
-			}
-			var task models.Task
-			err = json.Unmarshal(body, &task)
-			if err != nil {
-				a.Log.Error("Agent Unmarshaling body failed", zap.Error(err))
+			task := models.Task{
+				ID:            t.Id,
+				ExpressionID:  t.ExpressionId,
+				Arg1:          float64(t.Arg1),
+				Arg2:          float64(t.Arg2),
+				Operation:     models.Operation(t.Operation),
+				OperationTime: t.OperationTime,
 			}
 			a.Log.Info("Agent task received", zap.Any("task", task))
 			a.Jobs <- task
@@ -67,9 +60,6 @@ func (a *Agent) Recieve() {
 	}
 }
 func (a *Agent) Send() {
-	client := http.Client{
-		Timeout: time.Second * 5,
-	}
 	for {
 		select {
 		case <-a.Shutdown:
@@ -79,29 +69,19 @@ func (a *Agent) Send() {
 					if !ok {
 						return
 					}
-					s := PostResult{
-						ID:           task.ID,
-						ExpressionID: task.ExpressionID,
-						Result:       task.Result,
-						Error:        task.Error,
-					}
-					jsonData, err := json.Marshal(s)
-					if err != nil {
-						a.Log.Error("Agent Marshaling task failed", zap.Error(err), zap.Any("task", task))
-						continue
-					}
 					sended := false
 					for i := 0; i < 3; i++ {
-						req, _ := http.NewRequest(http.MethodPost, a.URL, bytes.NewBuffer(jsonData))
-						resp, err := client.Do(req)
+						res := float32(task.Result)
+						_, err := a.Client.PostResult(context.TODO(), &proto.PostResultRequest{
+							Id:           task.ID,
+							ExpressionId: task.ExpressionID,
+							Result:       &res,
+							Error:        task.Error,
+						})
 						if err != nil {
 							a.Log.Error("Agent Request failed", zap.Error(err))
 							time.Sleep(1 * time.Second)
 							continue
-						}
-						if resp.StatusCode != http.StatusOK {
-							a.Log.Error("Agent failed send result", zap.Any("task", task))
-							break
 						}
 						sended = true
 						break
@@ -119,29 +99,19 @@ func (a *Agent) Send() {
 			if !ok {
 				return
 			}
-			s := PostResult{
-				ID:           task.ID,
-				ExpressionID: task.ExpressionID,
-				Result:       task.Result,
-				Error:        task.Error,
-			}
-			jsonData, err := json.Marshal(s)
-			if err != nil {
-				a.Log.Error("Agent Marshaling task failed", zap.Error(err), zap.Any("task", task))
-				continue
-			}
 			sended := false
 			for i := 0; i < 3; i++ {
-				req, _ := http.NewRequest(http.MethodPost, a.URL, bytes.NewBuffer(jsonData))
-				resp, err := client.Do(req)
+				res := float32(task.Result)
+				_, err := a.Client.PostResult(context.TODO(), &proto.PostResultRequest{
+					Id:           task.ID,
+					ExpressionId: task.ExpressionID,
+					Result:       &res,
+					Error:        task.Error,
+				})
 				if err != nil {
 					a.Log.Error("Agent Request failed", zap.Error(err))
 					time.Sleep(1 * time.Second)
 					continue
-				}
-				if resp.StatusCode != http.StatusOK {
-					a.Log.Error("Agent failed send result", zap.Any("task", task))
-					break
 				}
 				sended = true
 				break
@@ -170,6 +140,7 @@ func (a *Agent) Stop(ctx context.Context) error {
 	close(a.Jobs)
 	defer close(a.Results)
 	a.Wg.Wait()
+	a.Conn.Close()
 	return nil
 }
 func (a *Agent) Worker() {
@@ -286,8 +257,15 @@ func New(config config2.Config, lc fx.Lifecycle, log *zap.Logger) *Agent {
 		Wg:             &sync.WaitGroup{},
 		Log:            log,
 		Shutdown:       make(chan struct{}),
-		URL:            fmt.Sprintf("http://%s:%d/api/v1/internal/task", config.ServerHost, config.ServerPort),
 	}
+	addr := fmt.Sprintf("%s:%d", config.ServerHost, config.ServerPort+1)
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		panic(err)
+	}
+	agent.Conn = conn
+	client := proto.NewCalcServiceClient(conn)
+	agent.Client = client
 	log.Info("Agent created")
 	lc.Append(fx.Hook{
 		OnStart: agent.Start,

@@ -59,17 +59,43 @@ go tool cover -html=coverage.out
 ```
 ## Запросы
 ### Swagger-UI
-Можно использовать [swagger-ui](http://localhost:8085/), там будет спецификация и возможность отправлять запросы.
+Можно использовать [swagger-ui](http://localhost:8085/), там будет спецификация и возможность отправлять запросы. **Токен авторизации необходимо вставить в Authorize сверху в формате `Bearer <token>`**
 ### Или же curl запросы
 **Запросы вводить нужно не в `cmd` или `power shell`, а в `Git Bash`, если вы скачивали `Git` себе на компьютер, то он у вас должен быть. Так как в `cmd` и `power shell` нужно экранировать например `^`. В итоге читать и писать выражения становится в разы труднее**
+#### Регистрация
+Шаблон запроcа. Пароль минимум 8, максимум 60 по длине, обязательно 1 цифра, прописная и строчная буква и 1 символ(например !@ b тд)
+```bash
+curl -X 'POST' \
+  'http://localhost:9090/api/v1/register' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "login": "user_2",
+  "password": "passworD!2"
+}'
+```
+#### Авторизация
+Шаблон запроcа. 
+```bash
+curl -X 'POST' \
+  'http://localhost:9090/api/v1/login' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "login": "user_2",
+  "password": "passworD!2"
+}'
+```
 #### Создать выражение
 Шаблон запроса на создание выражения, вставьте в него выражение и отправьте в `Git Bash`
 ```bash
-curl -X 'POST' -w "%{http_code}"\
-'http://localhost:9090/api/v1/calculate' \
--H 'Content-Type: application/json' \
--d '{
-  "expression": "{вставьте сюда выражение}"
+curl -X 'POST' \
+  'http://localhost:9090/api/v1/calculate' \
+  -H 'accept: application/json' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+  "expression": "log(18,18)^(-9)/3.14*(-12-3)*3/(-10)+2*sqrt(4)"
 }'
 ```
 |                    Expression                    | Status |   Status after solved    |   Result   |
@@ -100,6 +126,7 @@ curl -X 'POST' -w "%{http_code}"\
 curl -X 'GET' \
   'http://localhost:9090/api/v1/expressions?size{вставьте размер 1 страницы}&page={вставьте номер страницы, нумерация с 0}' \
   -H 'accept: application/json'
+  -H 'Authorization: Bearer <token>'
 ```
 #### Получить выражение по id
 Шаблон запроса. Вставьте вместо {id} id выражения и отправьте запрос в `Git Bash`
@@ -107,25 +134,5 @@ curl -X 'GET' \
 curl -X 'GET' \
 'http://localhost:9090/api/v1/expressions/{id}' \
 -H 'accept: application/json'
-```
-#### Получить задачу
-Отправьте запрос в `Git Bash`
-```bash
-curl -X 'GET' \
-  'http://localhost:9090/api/v1/internal/task' \
-  -H 'accept: application/json'
-```
-#### Отправить результат вычисления
-Шаблон запроса. Вставьте либо result, либо error и отправьте запрос в `Git Bash`
-```bash
-curl -X 'POST' \
-  'http://localhost:9090/api/v1/internal/task' \
-  -H 'accept: */*' \
-  -H 'Content-Type: application/json' \
-  -d '{
-  "id": 1,
-  "expression_id": 1,
-  "result": {вставьте число},
-  "error": "{вставьте текст ошибки}"
-}'
+-H 'Authorization: Bearer <token>'
 ```

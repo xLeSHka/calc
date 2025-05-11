@@ -33,6 +33,8 @@ services:
       dockerfile: DockerfileOrchestrator
     env_file:
       - config.env
+    expose:
+      - "9091"
     ports:
       - "9090:9090"
     depends_on:
@@ -73,8 +75,29 @@ services:
       API_URL: swagger/calc.swagger.yaml
     networks:
       - backend-network
+  redis:
+    env_file:
+      - config.env
+    restart: always
+    image: redis:latest
+    container_name: redis
+    expose:
+      - "6379"
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 30s
+      retries: 3
+      start_period: 10s
+      start_interval: 5s
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend-network
+      - test-network
 volumes:
   postgres_data:
+  redis-data:
 networks:
   test-network:
   backend-network:
