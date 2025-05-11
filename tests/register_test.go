@@ -3,7 +3,6 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/xLeSHka/calc/internal/models"
 	"net/http"
@@ -65,9 +64,6 @@ func TestRegister(t *testing.T) {
 				assert.Nil(t, err)
 			}()
 			assert.Equal(t, test.expectedCode, w.Code)
-			if w.Code != http.StatusOK {
-				fmt.Print(string(w.Body.Bytes()))
-			}
 			if test.expectedCode == http.StatusOK {
 				var user models.User
 				err := db.Model(&models.User{}).First(&user, "login = ?", test.Login).Error
