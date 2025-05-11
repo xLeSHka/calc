@@ -12,6 +12,11 @@ import (
 	"testing"
 )
 
+type User struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
+
 func TestLogin(t *testing.T) {
 	fn, quit, err := setUp()
 	assert.Nil(t, err)

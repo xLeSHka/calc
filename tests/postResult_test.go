@@ -55,15 +55,15 @@ func TestPostTask(t *testing.T) {
 	task, _ := AgentService.GetTask()
 	tests[0].ToPost.ID = task.ID
 	tests[0].ToPost.ExpressionID = task.ExpressionID
-
+	tests[0].ToPost.Result = task.Result
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			var res *float32
-			*res = float32(tests[0].ToPost.Result)
+			var res float32
+			res = float32(tests[0].ToPost.Result)
 			_, err := client.PostResult(context.TODO(), &proto.PostResultRequest{
 				Id:           tests[0].ToPost.ID,
 				ExpressionId: tests[0].ToPost.ExpressionID,
-				Result:       res,
+				Result:       &res,
 			})
 			assert.Nil(t, err)
 			time.Sleep(100 * time.Millisecond)

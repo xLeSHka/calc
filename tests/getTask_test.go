@@ -71,9 +71,9 @@ func TestGetTask(t *testing.T) {
 			if test.expectedCode == http.StatusOK {
 				fmt.Print(t, err)
 				assert.Nil(t, err)
-				assert.Equal(t, test.Expected.Arg1, task.Arg1)
-				assert.Equal(t, test.Expected.Arg2, task.Arg2)
-				assert.Equal(t, test.Expected.Operation, task.Operation)
+				assert.Equal(t, test.Expected.Arg1, float64(task.Arg1))
+				assert.Equal(t, test.Expected.Arg2, float64(task.Arg2))
+				assert.Equal(t, test.Expected.Operation, models.Operation(task.Operation))
 				assert.Equal(t, test.Expected.OperationTime, task.OperationTime)
 			}
 		})

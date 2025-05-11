@@ -99,7 +99,7 @@ func init() {
 		Addr: config.RedisHost + ":" + strconv.Itoa(int(config.RedisPort)),
 		DB:   0,
 	})
-
+	config.CryptoKey = "12345678901234567890123456789012"
 	err = rdb.Ping(context.Background()).Err()
 
 	if err != nil {
@@ -158,6 +158,7 @@ func init() {
 }
 func setUp() (func(), chan os.Signal, error) {
 	var err error
+	config.CryptoKey = "12345678901234567890123456789012"
 	profile1JWT, err = JWT.CreateToken(jwt2.MapClaims{
 		"id": profile1.ID,
 	}, time.Now().Add(time.Hour*24*7))

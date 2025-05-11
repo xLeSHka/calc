@@ -51,7 +51,7 @@ docker-compose up -d
 ## Тестирование сервера
 Тесты прогоняются автоматически при запуске, но можно запустить их и самому командой **после запуска сервиса так как тестам нужно подключение к БД.** Нужно ввести
 ```bash
-go test ./internal/tests/e2e_test.go -timeout 120s -v -cover -coverpkg ./... -coverprofile coverage.out
+go test ./tests/. -timeout 120s -v -cover -coverpkg ./internal/... -coverprofile coverage.out
 ```
 Создастся файл coverage.out который можно открыть командой
 ```bash
