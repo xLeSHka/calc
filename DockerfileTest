@@ -8,10 +8,10 @@ COPY go.mod go.sum ./
 
 RUN go mod download && go mod verify
 
-COPY internal/tests/e2e_test.go ./
+COPY tests/. ./
 COPY . .
 
-RUN  go test -c -o ./test ./e2e_test.go -timeout 120s -race -v -cover -coverpkg ./...
+RUN  go test -c -o ./test ./. -timeout 120s -race -v -cover -coverpkg ./internal/...
 
 FROM alpine:3.21 as RUNNER
 

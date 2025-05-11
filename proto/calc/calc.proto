@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package calc;
+
+option go_package = "github.com/xLeSHka/calc/proto";
+import "google/protobuf/empty.proto";
+service CalcService {
+  rpc GetTask(google.protobuf.Empty) returns (GetTaskResponse);
+  rpc PostResult(PostResultRequest)returns(google.protobuf.Empty);
+}
+
+message GetTaskResponse {
+  int64 id = 1;
+  int64 expression_id = 2;
+  float arg1 = 3;
+  float arg2 = 4;
+  Operation operation = 5;
+  int64 operation_time = 6;
+}
+enum Operation {
+    Addition = 0;
+    Subtraction=1;
+    Division=2;
+    Multiplication=3;
+    Exponentiation=4;
+    UnaryMinus=5;
+    Logarithm=6;
+    SquareRoot=7;
+}
+message PostResultRequest {
+  int64  id = 1;
+  int64  expression_id = 2;
+  optional float result = 3;
+  optional string error = 4;
+}

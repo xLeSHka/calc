@@ -6,13 +6,19 @@ BINARY_NAME := calc_service
 
 GO := go
 
-PROTO_DIR := ./proto
-OUT_DIR := ./pkg/api
 
-PROTOC := protoc
-PROTO_FILES := ${PROTO_DIR}/calc/calc.proto
+OUT_DIR := ./internal/pkg/api
 
-start: build run 
+PROTOC := C:\Users\Nikita\AppData\Local\Microsoft\WinGet\Packages\Google.Protobuf_Microsoft.Winget.Source_8wekyb3d8bbwe
+PROTO_FILES := ./proto/calc
+generate:
+	protoc \
+	--go_out $(OUT_DIR) --go_opt paths=source_relative \
+    --go-grpc_out $(OUT_DIR) --go-grpc_opt paths=source_relative \
+    --proto_path=${PROTO_FILES} \
+    --proto_path=${PROTOC}/include \
+    ${PROTO_FILES}/calc.proto
+start: build run
 build: 
 	@echo "Building the binary..."
 	${GO} build -o ${BINARY_NAME} ${MAIN_DIR}

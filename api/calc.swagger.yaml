@@ -7,185 +7,22 @@ info:
 tags:
   - name: Expressions
     description: 'Управление выражениями: создание и получение'
-  - name: Tasks
-    description: 'Управление заданиями: создание и получение результата'
+  - name: Users
+    description: 'Управление пользователями: регистрация и авторизация'
 servers:
 - url: http://localhost:9090/api/v1
-paths:
-  /calculate:
-    post:
-      tags:
-        - Expressions
-      summary: Создание выражения
-      description: Возвращает ID выражения
-      operationId: createExpression
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/createExpressionReq'
-        required: true
-      responses:
-        "201":
-          description: Выражение принято для вычисления
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/createExpressionResp'
-        "400":
-          description: Невалидное тело запроса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: Невалидные данные
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "500":
-          description: Внутренняя ошибка сервиса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /expressions:
-    get:
-      tags:
-        - Expressions
-      summary: Получение выражений с пагинацией в порядке создания от новых к старым
-      description: Возвращает список выражений и общее количество выражений
-      operationId: getExpressions
-      parameters:
-        - in: query
-          name: size
-          schema:
-            type: integer
-          description: Количество элементов на странице.
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: Номер страницы.
-      responses:
-        "200":
-          description: Список выражений
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/createExpressionResp'
-        "404":
-          description: Выражений не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "500":
-          description: Внутренняя ошибка сервиса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /expressions/{id}:
-    get:
-      tags:
-        - Expressions
-      summary: Получение выражения по ID
-      description: Возвращает выражение по ID
-      operationId: getExpression
-      parameters:
-        - in: path
-          name: id
-          required: true
-          description: ID выражения
-          schema:
-            type: number
-            format: int64
-            minimum: 1
-            example: 1
-      responses:
-        "200":
-          description: Список выражений
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/createExpressionResp'
-        "404":
-          description: Выражений не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "500":
-          description: Внутренняя ошибка сервиса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-  /internal/task:
-    get:
-      tags:
-        - Tasks
-      summary: Получение задачи
-      description: Возвращает задачу
-      operationId: getTask
-      responses:
-        "200":
-          description: Задача
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/getTask'
-        "404":
-          description: Выражений не найдено
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "500":
-          description: Внутренняя ошибка сервиса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-    post:
-      tags:
-        - Tasks
-      summary: Получает результат вычисления задачи
-      description:  Получает результат вычисления задачи
-      operationId: postTask
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/postResult'
-        required: true
-      responses:
-        "200":
-          description: Результат успешно записан
-        "404":
-          description: Задача или выражение не найдена
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "422":
-          description: Невалидные данные
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        "500":
-          description: Внутренняя ошибка сервиса
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
 components:
+  securitySchemes:
+    Bearer:
+      in: header
+      name: Authorization
+      type: apiKey
   schemas:
+    usersRoute.RespRegisterDto:
+          properties:
+            token:
+              type: string
+          type: object
     Error:
       type: object
       description: Ответ с описанием ошибки
@@ -201,6 +38,24 @@ components:
       required:
         - status
         - message
+    registerReq:
+      type: object
+      properties:
+        login:
+          type: string
+          description: Ваш логин
+          example: "user_12345"
+          minimum: 1
+          maximum: 120
+        password:
+          type: string
+          description: пароль, должен содерджать как минимум 1 цифру, символ, например !, строчную и прописную буквку и быть минимум 8 знаков в длину
+          example: "passworD!2"
+          minimum: 8
+          maximum: 60
+      required:
+        - login
+        - password
     createExpressionReq:
       type: object
       properties:
@@ -302,3 +157,261 @@ components:
       required:
         - id
         - expression_id
+paths:
+  /calculate:
+    post:
+      security:
+        - Bearer: []
+      tags:
+        - Expressions
+      summary: Создание выражения
+
+      description: Возвращает ID выражения
+      operationId: createExpression
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/createExpressionReq'
+        required: true
+      responses:
+        "201":
+          description: Выражение принято для вычисления
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createExpressionResp'
+        "400":
+          description: Невалидное тело запроса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Ошибка авторизации
+          schema:
+            $ref: '#/components/schemas/Error'
+        "422":
+          description: Невалидные данные
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "500":
+          description: Внутренняя ошибка сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /expressions:
+    get:
+      security:
+        - Bearer: [ ]
+      tags:
+        - Expressions
+      summary: Получение выражений с пагинацией в порядке создания от новых к старым
+      description: Возвращает список выражений и общее количество выражений
+      operationId: getExpressions
+      parameters:
+
+      - in: query
+        name: size
+        schema:
+          type: integer
+        description: Количество элементов на странице.
+      - in: query
+        name: page
+        schema:
+          type: integer
+        description: Номер страницы.
+      responses:
+        "200":
+          description: Список выражений
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/createExpressionResp'
+        "404":
+          description: Выражений не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Ошибка авторизации
+          schema:
+            $ref: '#/components/schemas/Error'
+        "500":
+          description: Внутренняя ошибка сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /expressions/{id}:
+    get:
+      security:
+        - Bearer: [ ]
+      tags:
+        - Expressions
+      summary: Получение выражения по ID
+      description: Возвращает выражение по ID
+      operationId: getExpression
+      parameters:
+
+      - in: path
+        name: id
+        required: true
+        description: ID выражения
+        schema:
+          type: number
+          format: int64
+          minimum: 1
+          example: 1
+      responses:
+        "200":
+          description: Список выражений
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/createExpressionResp'
+        "404":
+          description: Выражений не найдено
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        "401":
+          description: Ошибка авторизации
+          schema:
+            $ref: '#/components/schemas/Error'
+        "500":
+          description: Внутренняя ошибка сервиса
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /register:
+    post:
+      tags:
+        - Users
+      summary: Регистрация пользователя
+      description: Возвращает токен который в дальнейшем нужно использовать
+      operationId: register
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/registerReq'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersRoute.RespRegisterDto'
+        "400":
+          description: Ошибка валидации
+          schema:
+            $ref: '#/components/schemas/Error'
+        "409":
+          description: Пользователь с таким login уже зарегистрирован
+          schema:
+            $ref: '#/components/schemas/Error'
+        "500":
+          description: Что-то пошло не так
+          schema:
+            $ref: '#/components/schemas/Error'
+  /login:
+    post:
+      tags:
+        - Users
+      summary: Аутентификация пользователя
+      description: Возвращает токен который в дальнейшем нужно использовать
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/registerReq'
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/usersRoute.RespRegisterDto'
+        "400":
+          description: Ошибка валидации
+          schema:
+            $ref: '#/components/schemas/Error'
+        "401":
+          description: Ошибка авторизации
+          schema:
+            $ref: '#/components/schemas/Error'
+        "500":
+          description: Что-то пошло не так
+          schema:
+            $ref: '#/components/schemas/Error'
+#  /internal/task:
+#    get:
+#      tags:
+#        - Tasks
+#      summary: Получение задачи
+#      description: Возвращает задачу
+#      operationId: getTask
+#      responses:
+#        "200":
+#          description: Задача
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/getTask'
+#        "404":
+#          description: Выражений не найдено
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Error'
+#        "500":
+#          description: Внутренняя ошибка сервиса
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Error'
+#    post:
+#      tags:
+#        - Tasks
+#      summary: Получает результат вычисления задачи
+#      description:  Получает результат вычисления задачи
+#      operationId: postTask
+#      requestBody:
+#        content:
+#          application/json:
+#            schema:
+#              $ref: '#/components/schemas/postResult'
+#        required: true
+#      responses:
+#        "200":
+#          description: Результат успешно записан
+#        "404":
+#          description: Задача или выражение не найдена
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Error'
+#        "422":
+#          description: Невалидные данные
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Error'
+#        "500":
+#          description: Внутренняя ошибка сервиса
+#          content:
+#            application/json:
+#              schema:
+#                $ref: '#/components/schemas/Error'Error

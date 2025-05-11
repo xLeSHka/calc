@@ -9,6 +9,7 @@ import (
 	"github.com/xLeSHka/calc/internal/pkg/counter"
 	"github.com/xLeSHka/calc/internal/pkg/customError"
 	"github.com/xLeSHka/calc/internal/pkg/token"
+	"go.uber.org/fx"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 	"net/http"
@@ -22,29 +23,33 @@ type Task struct {
 	Error  chan error
 }
 type Calculator struct {
-	Tasks   map[int64]*Task
-	TasksCh chan int64
+	Tasks           map[int64]*Task
+	TasksCh         chan int64
+	Log             *zap.Logger
+	AgentRepository repository.AgentRepository
+	Cache           *cache.Cache
+	Counter         *counter.Counter
+	mu              *sync.Mutex
+}
+type FxOpts struct {
+	fx.In
 	Log     *zap.Logger
-	Repo    repository.Repo
-	Cache   *cache.Cache
+	Repo    repository.AgentRepository
+	Times   *cache.Cache
 	Counter *counter.Counter
-	mu      *sync.Mutex
 }
 
 func New(
-	log *zap.Logger,
-	repo repository.Repo,
-	times *cache.Cache,
-	counter *counter.Counter,
+	opts FxOpts,
 ) *Calculator {
 	return &Calculator{
-		Log:     log,
-		Tasks:   make(map[int64]*Task),
-		TasksCh: make(chan int64, 200),
-		mu:      &sync.Mutex{},
-		Repo:    repo,
-		Cache:   times,
-		Counter: counter,
+		Log:             opts.Log,
+		Tasks:           make(map[int64]*Task),
+		TasksCh:         make(chan int64, 200),
+		mu:              &sync.Mutex{},
+		AgentRepository: opts.Repo,
+		Cache:           opts.Times,
+		Counter:         opts.Counter,
 	}
 }
 func (c *Calculator) Exists(taskID int64) bool {
@@ -279,7 +284,7 @@ func (c *Calculator) Calc(expressionNT token.Node, expressionID int64) {
 		ID:     expressionID,
 		Status: "In process",
 	}
-	err := c.Repo.UpdateExpression(expr)
+	err := c.AgentRepository.UpdateExpression(expr)
 	if err != nil {
 		c.Log.Error("Failed set expression status to In process", zap.Error(err))
 		return
@@ -294,7 +299,7 @@ func (c *Calculator) Calc(expressionNT token.Node, expressionID int64) {
 			ID:     expressionID,
 			Status: "Unprocessable expression",
 		}
-		err = c.Repo.UpdateExpression(expr)
+		err = c.AgentRepository.UpdateExpression(expr)
 		if err != nil {
 			c.Log.Error("Failed set expression status to Unprocessable expression", zap.Error(err))
 		}
@@ -307,7 +312,7 @@ func (c *Calculator) Calc(expressionNT token.Node, expressionID int64) {
 			ID:     expressionID,
 			Status: "Unprocessable expression",
 		}
-		err = c.Repo.UpdateExpression(expr)
+		err = c.AgentRepository.UpdateExpression(expr)
 		if err != nil {
 			c.Log.Error("Failed set expression status to Unprocessable expression", zap.Error(err))
 		}
@@ -318,7 +323,7 @@ func (c *Calculator) Calc(expressionNT token.Node, expressionID int64) {
 		Status: "Solved",
 		Result: &res,
 	}
-	err = c.Repo.UpdateExpression(expr)
+	err = c.AgentRepository.UpdateExpression(expr)
 	if err != nil {
 		c.Log.Error("Failed set expression status to Solved", zap.Error(err))
 	}
