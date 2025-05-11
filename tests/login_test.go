@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/xLeSHka/calc/internal/models"
 	"github.com/xLeSHka/calc/internal/utils/password"
@@ -11,6 +12,11 @@ import (
 	"syscall"
 	"testing"
 )
+
+type User struct {
+	Login    string `json:"login"`
+	Password string `json:"password"`
+}
 
 func TestLogin(t *testing.T) {
 	fn, quit, err := setUp()
@@ -51,6 +57,7 @@ func TestLogin(t *testing.T) {
 			expectedCode: http.StatusBadRequest,
 		},
 	}
+	fmt.Print(config.CryptoKey)
 	hash, _ := password.Encrypt([]byte("passworD!2"), []byte(config.CryptoKey))
 	UsersService.Register(&models.User{
 		ID:       profile1.ID,
@@ -76,6 +83,9 @@ func TestLogin(t *testing.T) {
 				assert.Nil(t, err)
 			}()
 			assert.Equal(t, test.expectedCode, w.Code)
+			if w.Code != http.StatusOK {
+				fmt.Println(string(w.Body.Bytes()))
+			}
 		})
 	}
 }

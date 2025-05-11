@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/stretchr/testify/assert"
 	"github.com/xLeSHka/calc/internal/models"
 	"github.com/xLeSHka/calc/internal/utils/password"
@@ -150,7 +151,11 @@ func TestCreateExpression(t *testing.T) {
 			expectedCode: http.StatusUnauthorized,
 		},
 	}
-	hash, _ := password.Encrypt([]byte("passworD!2"), []byte(config.CryptoKey))
+	hash, err := password.Encrypt([]byte("passworD!2"), []byte(config.CryptoKey))
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Print(hash, config.CryptoKey)
 	UsersService.Register(&models.User{
 		ID:       profile1.ID,
 		Login:    profile1.Login,
